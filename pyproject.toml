@@ -1,0 +1,31 @@
+[project]
+name = "crondns"
+version = "0.0.0"
+description = "Selfhosted Webinterface DynDNS Manager. (Update IP on A, AAAA and DynDNS records)"
+authors = [
+    {name = "TRC Loop",email = "ak@stellar-code.com"}
+]
+license = {text = "GPL-3.0"}
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+]
+
+[dependency-groups]
+dev = [
+    "tqdm (>=4.67.1,<5.0.0)",
+    "rich (>=14.2.0,<15.0.0)",
+    "pyyaml (>=6.0.3,<7.0.0)",
+    "cssutils (>=2.11.1,<3.0.0)",
+    "pyscss (>=1.4.0,<2.0.0)",
+    "jinja2 (>=3.1.6,<4.0.0)",
+    "gitignore-parser (>=0.1.13,<0.2.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+package-mode = false
