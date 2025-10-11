@@ -1,0 +1,16 @@
+build:
+  output_dir: dist
+  src_dir: src
+  file_extensions:
+    - .html
+    - .css
+    - .scss
+    - .js
+    - .php
+    - .sass
+    - .txt
+    - .j2
+    - .template
+  use_gitignore: true
+
+version: '0.0.0-alpha'

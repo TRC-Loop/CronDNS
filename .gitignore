@@ -765,3 +765,4 @@ FodyWeavers.xsd
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,windows,linux,jetbrains+all,visualstudio,visualstudiocode,vim,php,python,poetry
 
+*dist.zip
