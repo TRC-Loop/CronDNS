@@ -12,9 +12,9 @@
   ·
   <a href="https://github.com/TRC-Loop/CronDNS#installation">Installation</a>
   ·
-  <a href="">Documentation</a>
+  <a href="https://github.com/TRC-Loop/CronDNS/wiki">Documentation</a>
   ·
-  <a href="">Supported Registrars</a>
+  <a href="https://github.com/TRC-Loop/CronDNS/wiki/Supported-Registrars">Supported Registrars</a>
 </p>
 
 
@@ -26,3 +26,4 @@ A Simple Webinterface to manage all your DynDNS Domains!
 ## Installation
 
 Coming Soon!
+
