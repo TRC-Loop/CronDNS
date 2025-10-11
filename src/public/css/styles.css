@@ -1,0 +1,129 @@
+/* ---------- Global ---------- */
+:root {
+  --bg: #f0f4f8;
+  --card: #ffffff;
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --border: #d1d5db;
+  --text: #333333;
+  --placeholder: #9ca3af;
+  --link: #6b7280;
+  --link-hover: #4b5563;
+  --error: #ef4444;          /* error color */
+  --error-light: #fee2e2;    /* light error background */
+}
+
+/* ---------- Base ---------- */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+body {
+  margin: 0; padding: 0;
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  display: flex; justify-content: center; align-items: center;
+  height: 100vh;
+}
+
+/* ---------- Card ---------- */
+.login-card {
+  background: var(--card);
+  padding: 2.5rem 2.75rem;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.07);
+  width: 320px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.2s;
+}
+
+.login-card.login-error { background: var(--error-light); }
+
+/* ---------- Heading ---------- */
+.login-card h1 { margin: 0 0 1.75rem 0; font-size: 1.9rem; color: var(--text); }
+
+/* ---------- Input Wrapper ---------- */
+.input-wrapper {
+  position: relative;
+  margin-bottom: 1.75rem;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: 0.85rem 0.85rem 0.85rem 2.75rem;
+  font-size: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: #fafafa;
+  color: var(--text);
+}
+
+.input-wrapper input::placeholder { color: var(--placeholder); }
+
+.input-wrapper input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.input-wrapper .icon {
+  position: absolute;
+  top: 50%; left: 0.85rem;
+  transform: translateY(-50%);
+  color: var(--primary);
+  pointer-events: none;
+  font-size: 1.25rem;
+}
+
+.input-wrapper .toggle-visibility {
+  position: absolute;
+  top: 50%; right: 0.85rem;
+  transform: translateY(-50%);
+  color: var(--placeholder);
+  cursor: pointer;
+  font-size: 1.25rem;
+  transition: color 0.2s;
+}
+
+.input-wrapper .toggle-visibility:hover { color: var(--primary); }
+
+/* ---------- Button ---------- */
+.login-card button {
+  width: 100%;
+  padding: 0.85rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #fff;
+  background: var(--primary);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.25s, transform 0.2s;
+}
+
+.login-card button:hover { background: var(--primary-hover); }
+.login-card button:active { transform: scale(0.97); }
+.login-card button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ---------- Links ---------- */
+.login-card .links {
+  margin-top: 1.25rem;
+  font-size: 0.85rem;
+  color: var(--link);
+}
+
+.login-card .links a { color: var(--link); text-decoration: none; transition: color 0.2s; }
+.login-card .links a:hover { color: var(--link-hover); }
+.login-card .links .separator { margin: 0 0.4rem; }
+
+/* ---------- Version label ---------- */
+.login-card .version {
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  color: var(--placeholder);
+}
