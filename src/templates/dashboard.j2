@@ -1,0 +1,33 @@
+{% extends 'templates/base.j2' %}
+{% block title %}CronDNS{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+
+  <div class="sidebar">
+    <h2>CronDNS</h2>
+    <a href="/home.php" class="{{ 'active' if active_page == 'home' }}">
+      <i class="ti ti-home"></i><span>Home</span>
+    </a>
+    <a href="/domains.php" class="{{ 'active' if active_page == 'domains' }}">
+      <i class="ti ti-world"></i><span>Domains</span>
+    </a>
+    <a href="/settings.php" class="{{ 'active' if active_page == 'settings' }}">
+      <i class="ti ti-settings"></i><span>Settings</span>
+    </a>
+    <div class="sidebar-spacer"></div>
+
+    <div class="sidebar-footer">
+      <a href="/logout.php" class="sidebar-logout">
+        <i class="ti ti-logout"></i> Logout
+      </a>
+      <div class="sidebar-version">v{{ cfg.version }}</div>
+    </div>
+  </div>
+
+  <div class="content">
+    {% block main %}{% endblock %}
+  </div>
+
+</div>
+{% endblock %}
