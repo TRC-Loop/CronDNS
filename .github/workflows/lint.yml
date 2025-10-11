@@ -18,6 +18,8 @@ concurrency:
   group: lint-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
 jobs:
   lint:
     name: Lint Code
