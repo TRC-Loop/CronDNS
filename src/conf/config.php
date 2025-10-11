@@ -17,6 +17,8 @@ if (empty($passwordObject)) {
   $password = new KeyValue();
   $password->key = "passwordHash";
   $password->value = '$argon2id$v=19$m=65536,t=4,p=1$bFRhazF1S0NtTWxicmhzMQ$aEXuLwDEc8qLJHGOb9agk/QC9K3FfujLHxb7mfQFzqw';
+  // This is the default password: cr0ndns!42+ Please change it immediatly to a more secure one.
+  // TODO: Implement a better "First-Time" OOBE Password/Wizard, like the Server's IP being the Password or something similar.
   $settingsManager->save($password);
 }
 ?>
