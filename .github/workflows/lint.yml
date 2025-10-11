@@ -1,0 +1,69 @@
+name: Lint PHP / HTML / CSS
+
+on:
+  push:
+    paths:
+      - '**/*.php'
+      - '**/*.html'
+      - '**/*.htm'
+      - '**/*.css'
+  pull_request:
+    paths:
+      - '**/*.php'
+      - '**/*.html'
+      - '**/*.htm'
+      - '**/*.css'
+
+concurrency:
+  group: lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['8.1', '8.2', '8.3']
+      fail-fast: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # PHP lint
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v4
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: parallel-lint
+
+      - name: Lint PHP files
+        run: |
+          echo "Running PHP syntax check..."
+          if command -v parallel-lint > /dev/null; then
+            parallel-lint --colors --exclude vendor .
+          else
+            find . -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+          fi
+
+      # HTML + CSS lint (via npm, no package.json required)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install linters (HTMLHint & Stylelint)
+        run: |
+          npm install -g htmlhint stylelint stylelint-config-standard
+
+      - name: Lint HTML
+        run: |
+          echo "Running HTMLHint..."
+          htmlhint "**/*.html" "**/*.htm" || exit 1
+
+      - name: Lint CSS
+        run: |
+          echo "Running Stylelint..."
+          stylelint "**/*.css" --config-basedir . --config '{"extends":"stylelint-config-standard"}' || exit 1
