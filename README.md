@@ -51,7 +51,8 @@ Coming Soon!
 - Short Delay: IP changes -> IP update
 - Beatiful yet functional UI/UX
 - Uptime Kuma and Webhook integration
-- As Simple as it gets
+- As simple as it gets
 - Full dashboard
+
 
 
