@@ -19,7 +19,7 @@
   <a href="https://github.com/TRC-Loop/CronDNS/wiki/Supported-Registrars">Supported Registrars</a>
 </p>
 
-
+# Work in Progress!
 
 # CronDNS
 
@@ -46,5 +46,10 @@ When your ISP assigns a new IP to your home network, the DNS record for `myhome.
 
 Coming Soon!
 
+## Features
+- Only tries to change the IP Address when needed
+- Short Delay: IP changes -> IP update
+- Beatiful yet functional UI/UX
+- Uptime Kuma and Webhook integration
 
 
