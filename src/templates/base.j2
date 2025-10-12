@@ -9,14 +9,14 @@
   <body>
     <main>
       {% block content %}{% endblock %}
-        {% if cfg.env == 'dev' %}
-        <div style="position:fixed; bottom:10px; right:10px;
-                padding:2px 8px; border-radius:8px;
-                font-size:11px; font-family:monospace;
-                background:#fff; color:#555; font-weight:normal;
-                border:1px solid #aaa;">
-                Build: {{ cfg.build_timestamp }}
-            </div>
+      {% if cfg.env == 'dev' %}
+      <div style="position:fixed; bottom:10px; right:10px;
+        padding:2px 8px; border-radius:8px;
+        font-size:11px; font-family:monospace;
+        background:#fff; color:#555; font-weight:normal;
+        border:1px solid #aaa;">
+        Build: {{ cfg.build_timestamp }}
+      </div>
       {% endif %}
     </main>
     <script>
