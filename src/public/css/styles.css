@@ -259,3 +259,142 @@ body.login-page {
 .sidebar-logout i {
   font-size: 1.2rem;
 }
+
+.dashboard-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; 
+}
+
+.dashboard-title i {
+  font-size: 2.0rem; 
+  color: var(--link);
+}
+
+.dashboard-title h1 {
+  margin: 0; 
+  color: var(--link);
+  font-size: 2.0rem; 
+}
+
+.group-box {
+  position: relative;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  background: var(--bg); /* optional */
+}
+
+/* Title styling */
+.group-box::before {
+  content: attr(data-title);
+  position: absolute;
+  top: -0.7em;
+  left: 1rem;
+  background: var(--bg); /* match container background */
+  padding: 0 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+/* ---------- Generic Button ---------- */
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: var(--primary);
+  color: #fff;
+  transition: background 0.25s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.15);
+}
+
+button i {
+  font-size: 1.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hover, active, disabled */
+button:hover {
+  background: var(--primary-hover);
+  box-shadow: 0 3px 8px rgba(99, 102, 241, 0.25);
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ---------- Button Variants ---------- */
+button.secondary {
+  background: var(--card);
+  color: var(--primary);
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+
+button.secondary:hover {
+  background: var(--primary-light);
+  color: #fff;
+}
+
+button.danger {
+  background: var(--error);
+}
+
+button.danger:hover {
+  background: #dc2626;
+}
+
+/* Optional small variant */
+button.small {
+  font-size: 0.9rem;
+  padding: 0.45rem 0.9rem;
+  gap: 0.4rem;
+}
+
+.app-info-inline {
+  font-size: 0.85rem;
+  color: var(--placeholder);
+  text-align: center;
+}
+.app-info-inline .separator {
+  margin: 0 0.5rem;
+}
+
+.app-info-dl {
+  font-size: 0.9rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 0.75rem;
+}
+.app-info-dl dt {
+  font-weight: 600;
+}
+
+.copy-icon {
+  font-size: 0.85rem;
+  margin-left: 0.3rem;
+  color: var(--link);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.copy-icon:hover {
+  color: var(--primary);
+}

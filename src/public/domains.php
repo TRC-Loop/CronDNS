@@ -1,6 +1,5 @@
 {% extends 'templates/dashboard.j2' %}
-{% set active_page = 'home' %}
+{% set active_page = 'domains' %}
 {% block main %}
-<h1>Home</h1>
-<h2>Good afternoon!</h2>
+<h1>Domains</h1>
 {% endblock %}
