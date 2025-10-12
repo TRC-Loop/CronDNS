@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, timezone
 import yaml
 import zipfile
 from tqdm.rich import tqdm  # Import tqdm for progress bar
@@ -39,8 +40,12 @@ def main():
 
     jinja_templater = JinjaTemplater(src_dir)
 
+    config["build_timestamp"] = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S") 
     cfg_context = {"cfg": config}
 
+    logger.debug(f"Config Context: {cfg_context}")
+
+    logger.info(f"Started Build: {config['build_timestamp']}")
     gitignore_matcher = None
     if use_gitignore:
         gitignore_matcher = get_gitignore_matcher(project_root)
@@ -102,6 +107,7 @@ def main():
     zip_path = os.path.join(os.path.dirname(dist_dir), "dist.zip")
     zip_directory(dist_dir, zip_path)
     logger.info(f"Zipped {dist_dir} into {zip_path}")
+    logger.info(f"Finished: {config['build_timestamp']}")
 
 if __name__ == "__main__":
     main()
