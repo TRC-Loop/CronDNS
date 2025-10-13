@@ -114,7 +114,7 @@ require_once __DIR__."/../lib/utils.php";
     pwdError.style.display = 'none';
 
     // send to server via fetch
-    fetch('/change-password.php', {
+    fetch('/api/change-password.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password: p1 })
