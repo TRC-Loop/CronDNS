@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . "/../conf/config.php";
+
 session_start();
 
 if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
