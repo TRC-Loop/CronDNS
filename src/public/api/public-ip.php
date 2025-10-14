@@ -1,4 +1,22 @@
 <?php
+require_once __DIR__."/../../conf/config.php";
+
+$apiKeyObject = $settingsManager->find(["key" => "apiKey"]);
+$apiKey = $apiKeyObject->value;
+
+// Get the API key from the request header
+$providedKey = $_SERVER['HTTP_X_API_KEY'] ?? null;
+
+// Check API key
+if (!$providedKey || $providedKey !== $apiKey) {
+    header('Content-Type: application/json; charset=utf-8', true, 401);
+    echo json_encode([
+        'ok' => false,
+        'error' => 'Invalid API key'
+    ]);
+    exit;
+}
+
 function getPublicIPv4(): ?string {
     $headers = [
         $_SERVER['HTTP_CF_CONNECTING_IP'] ?? null,

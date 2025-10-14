@@ -21,4 +21,21 @@ if (empty($passwordObject)) {
   // TODO: Implement a better "First-Time" OOBE Password/Wizard, like the Server's IP being the Password or something similar.
   $settingsManager->save($password);
 }
+
+$showipObject = $settingsManager->find(["key"=>"showIP"]);
+if (empty($showipObject)) {
+  $showIP = new KeyValue();
+  $showIP->key = "showIP";
+  $showIP->value = false;
+  $settingsManager->save($showIP);
+}
+
+$apiKeyObject = $settingsManager->find(["key"=>"apiKey"]);
+if (empty($apiKeyObject)) {
+  $apiKey = new KeyValue();
+  $apiKey->key = "apiKey";
+  $apiKey->value = bin2hex(random_bytes(32));
+  $settingsManager->save($apiKey);
+}
+
 ?>
