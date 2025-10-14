@@ -1,5 +1,9 @@
 <?php
 require_once __DIR__."/../lib/utils.php";
+require_once __DIR__."/../conf/config.php";
+
+$apiKeyObject = $settingsManager->find(["key"=>"apiKey"]);
+$apiKey = $apiKeyObject->value;
 ?>
 {% extends 'templates/dashboard.j2' %}
 {% set active_page = 'settings' %}
@@ -26,6 +30,23 @@ require_once __DIR__."/../lib/utils.php";
   </div>
 </div>
 
+<div class="group-box" data-title="API Key">
+  <button id="regenApiKeyBtn" title="Regenerate API Key"><i class="ti ti-key"></i>Regenerate API Key</button>
+</div>
+
+<!-- API Key Modal -->
+<div id="apiKeyModal" class="modal">
+  <div class="modal-content">
+    <h3>New API Key</h3>
+    <p>Copy this API key now. You won't be able to see it again!</p>
+    <input type="text" id="newApiKey" readonly />
+    <div class="modal-actions">
+      <button id="closeApiKeyModal" class="secondary">Close</button>
+      <button id="copyApiKey">Copy</button>
+    </div>
+  </div>
+</div>
+
 <div class="group-box" data-title="Info">
   <button onclick="window.location.href='php-info.php'" title="View phpinfo().">
     <i class="ti ti-info-circle"></i>PHP Info
@@ -37,27 +58,28 @@ require_once __DIR__."/../lib/utils.php";
     <dt>Total Domains</dt><dd>0</dd>
   </dl>
 
-<div class="app-info-inline">
-  <span>
-    <strong>Build:</strong> {{ cfg.build_timestamp }}
-    <i class="ti ti-copy copy-icon" data-copy="{{ cfg.build_timestamp }}" title="Copy Build"></i>
-  </span>
-  <span class="separator">•</span>
+  <div class="app-info-inline">
+    <span>
+      <strong>Build:</strong> {{ cfg.build_timestamp }}
+      <i class="ti ti-copy copy-icon" data-copy="{{ cfg.build_timestamp }}" title="Copy Build"></i>
+    </span>
+    <span class="separator">•</span>
 
-  <span>
-    <strong>Environment:</strong> {{ cfg.env }}
-    <i class="ti ti-copy copy-icon" data-copy="{{ cfg.env }}" title="Copy Environment"></i>
-  </span>
-  <span class="separator">•</span>
+    <span>
+      <strong>Environment:</strong> {{ cfg.env }}
+      <i class="ti ti-copy copy-icon" data-copy="{{ cfg.env }}" title="Copy Environment"></i>
+    </span>
+    <span class="separator">•</span>
 
-  <span>
-    <strong>Version:</strong> {{ cfg.version }}
-    <i class="ti ti-copy copy-icon" data-copy="{{ cfg.version }}" title="Copy Version"></i>
-  </span>
-</div>
+    <span>
+      <strong>Version:</strong> {{ cfg.version }}
+      <i class="ti ti-copy copy-icon" data-copy="{{ cfg.version }}" title="Copy Version"></i>
+    </span>
+  </div>
 </div>
 
 <script>
+  // Copy icon logic
   document.querySelectorAll('.copy-icon').forEach(icon => {
     icon.addEventListener('click', () => {
       const text = icon.getAttribute('data-copy');
@@ -113,7 +135,6 @@ require_once __DIR__."/../lib/utils.php";
 
     pwdError.style.display = 'none';
 
-    // send to server via fetch
     fetch('/api/change-password.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -134,6 +155,61 @@ require_once __DIR__."/../lib/utils.php";
       pwdError.textContent = 'An error occurred.';
       pwdError.style.display = 'block';
     });
+  });
+
+  // API key regeneration logic
+  const regenBtn = document.getElementById('regenApiKeyBtn');
+  const apiKeyModal = document.getElementById('apiKeyModal');
+  const newApiKeyInput = document.getElementById('newApiKey');
+  const closeApiKeyBtn = document.getElementById('closeApiKeyModal');
+  const copyApiKeyBtn = document.getElementById('copyApiKey');
+
+  regenBtn.addEventListener('click', () => {
+    regenBtn.disabled = true;
+    regenBtn.textContent = 'Regenerating...';
+
+    fetch(`/api/regen-apikey.php?oldKey=<?= urlencode($apiKey) ?>`)
+      .then(res => res.json())
+      .then(data => {
+        regenBtn.disabled = false;
+        regenBtn.innerHTML = '<i class="ti ti-key"></i>Regenerate API Key';
+
+        if (data.ok && data.newKey) {
+          // Store the new key in sessionStorage before reload
+          sessionStorage.setItem('newApiKey', data.newKey);
+          location.reload(); // reload page to update PHP $apiKey
+        } else {
+          alert(data.error || 'Failed to regenerate API key.');
+        }
+      })
+      .catch(err => {
+        regenBtn.disabled = false;
+        regenBtn.innerHTML = '<i class="ti ti-key"></i>Regenerate API Key';
+        console.error(err);
+        alert('An error occurred while regenerating API key.');
+      });
+  });
+
+  // Show modal after reload if new API key exists in sessionStorage
+  window.addEventListener('DOMContentLoaded', () => {
+    const storedKey = sessionStorage.getItem('newApiKey');
+    if (storedKey) {
+      newApiKeyInput.value = storedKey;
+      apiKeyModal.style.display = 'flex';
+      sessionStorage.removeItem('newApiKey'); // clear it so it only shows once
+    }
+  });
+
+  closeApiKeyBtn.addEventListener('click', () => {
+    apiKeyModal.style.display = 'none';
+    newApiKeyInput.value = '';
+  });
+
+  copyApiKeyBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(newApiKeyInput.value).then(() => {
+      copyApiKeyBtn.textContent = 'Copied!';
+      setTimeout(() => copyApiKeyBtn.textContent = 'Copy', 1000);
+    }).catch(err => console.error('Failed to copy:', err));
   });
 </script>
 {% endblock %}
