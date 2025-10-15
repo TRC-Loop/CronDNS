@@ -382,6 +382,7 @@ button.small {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 0.25rem 0.75rem;
+  color: var(--placeholder);
 }
 .app-info-dl dt {
   font-weight: 600;
