@@ -1,6 +1,38 @@
 {% extends 'templates/dashboard.j2' %}
 {% set active_page = 'domains' %}
 {% block main %}
+<?php
+require_once __DIR__."/../lib/utils.php";
+require_once __DIR__."/../conf/config.php";
+require_once __DIR__."/../lib/domain.php";
+
+$domainManager = new PersistentEntityManager(Domain::class, $logger, DB, 'domains');
+$domains = $domainManager->list([], ['domain' => 'ASC']);
+
+// Handle form submission inline
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'createDomain') {
+    $domain = trim($_POST['domain'] ?? '');
+    $provider = trim($_POST['provider'] ?? '');
+    $credentials = $_POST['credentials'] ?? [];
+
+    $success = false;
+    $error = '';
+
+    if (!$domain || !$provider) {
+        $error = 'Domain and provider are required.';
+    } else {
+      $domainManager = new PersistentEntityManager(Domain::class, $logger, DB, 'domains');
+      $domainKeyObject = $domainManager->find(["domain"=>$domain]);
+      if (empty($domainKeyObject)) {
+        $domainKey = new Domain();
+        $domainKey->domain = $domain;
+        $domainKey->provider = $provider;
+        $domainKey->credentials = json_decode($credentials, true); 
+        $domainManager->save($domainKey);
+      } else { $error = "Domain: $domain already exists"; }
+    }
+}
+?>
 <div class="dashboard-title">
   <i class="ti ti-world"></i>
   <h1>Domains</h1>
@@ -29,37 +61,26 @@
         <th><i class="ti ti-settings"></i> Actions</th>
       </tr>
     </thead>
+
     <tbody>
+      <?php foreach ($domains as $d): ?>
       <tr>
-        <td>example.com</td>
-        <td>Cloudflare</td>
-        <td>104.21.47.123</td>
+        <td><?= htmlspecialchars($d->domain) ?></td>
+        <td><?= htmlspecialchars($d->provider) ?></td>
+        <td>
+          <?php
+          // Try to resolve the current IP dynamically
+          $ip = gethostbyname($d->domain);
+          echo htmlspecialchars($ip);
+          ?>
+        </td>
         <td class="actions">
           <button class="small secondary"><i class="ti ti-eye"></i> Show</button>
           <button class="small"><i class="ti ti-edit"></i> Edit</button>
           <button class="small danger"><i class="ti ti-trash"></i> Delete</button>
         </td>
       </tr>
-      <tr>
-        <td>mycompany.net</td>
-        <td>GoDaddy</td>
-        <td>35.186.234.22</td>
-        <td class="actions">
-          <button class="small secondary"><i class="ti ti-eye"></i> Show</button>
-          <button class="small"><i class="ti ti-edit"></i> Edit</button>
-          <button class="small danger"><i class="ti ti-trash"></i> Delete</button>
-        </td>
-      </tr>
-      <tr>
-        <td>internal.dev</td>
-        <td>Self-hosted</td>
-        <td>192.168.1.5</td>
-        <td class="actions">
-          <button class="small secondary"><i class="ti ti-eye"></i> Show</button>
-          <button class="small"><i class="ti ti-edit"></i> Edit</button>
-          <button class="small danger"><i class="ti ti-trash"></i> Delete</button>
-        </td>
-      </tr>
+      <?php endforeach; ?>
     </tbody>
   </table>
 </div>
@@ -84,9 +105,15 @@
       <button id="cancelCreateDomain" class="secondary">Cancel</button>
       <button id="okCreateDomain">Create</button>
     </div>
+    <p id="createDomainError" class="error-text"></p>
   </div>
 </div>
-
+<form id="inlineCreateForm" method="POST" style="display:none;">
+  <input type="hidden" name="action" value="createDomain">
+  <input type="hidden" name="domain" id="formDomain">
+  <input type="hidden" name="provider" id="formProvider">
+  <input type="hidden" name="credentials" id="formCredentials">
+</form>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const table = document.getElementById('domainTable');
@@ -124,8 +151,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const okBtn = document.getElementById('okCreateDomain');
   const providerSelect = document.getElementById('providerSelect');
   const providerFields = document.getElementById('providerFields');
+  const errorText = document.getElementById('createDomainError');
 
-  // Provider-specific fields
+  const form = document.getElementById('inlineCreateForm');
+  const formDomain = document.getElementById('formDomain');
+  const formProvider = document.getElementById('formProvider');
+  const formCredentials = document.getElementById('formCredentials');
+
   const providerFieldMap = {
     strato: [
       { label: 'Username', id: 'stratoUser', type: 'text' },
@@ -146,6 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('domainName').value = '';
     providerSelect.value = '';
     providerFields.innerHTML = '';
+    errorText.style.display = 'none';
     modal.style.display = 'flex';
   });
 
@@ -172,15 +205,18 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   okBtn.addEventListener('click', () => {
+    errorText.style.display = 'none';
     const domain = document.getElementById('domainName').value.trim();
     const provider = providerSelect.value;
 
     if (!domain) {
-      alert('Please enter a domain name.');
+      errorText.textContent = 'Please enter a domain name.';
+      errorText.style.display = 'block';
       return;
     }
     if (!provider) {
-      alert('Please select a provider.');
+      errorText.textContent = 'Please select a provider.';
+      errorText.style.display = 'block';
       return;
     }
 
@@ -189,11 +225,19 @@ document.addEventListener('DOMContentLoaded', () => {
       credentials[field.id] = document.getElementById(field.id).value.trim();
     });
 
-    // Placeholder for your create logic
-    console.log('Creating domain', domain, provider, credentials);
-
-    modal.style.display = 'none';
+    // Fill hidden form and submit
+    formDomain.value = domain;
+    formProvider.value = provider;
+    formCredentials.value = JSON.stringify(credentials);
+    form.submit();
   });
+
+  // Optional: show success/error from PHP after submission
+  <?php if(isset($success) && $success): ?>
+    alert('Domain created successfully!');
+  <?php elseif(isset($error) && $error): ?>
+    alert('Error: <?= addslashes($error) ?>');
+  <?php endif; ?>
 });
 </script>
 {% endblock %}
