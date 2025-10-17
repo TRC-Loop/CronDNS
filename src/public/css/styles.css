@@ -582,3 +582,52 @@ button.small {
   font-size: 1rem;
   vertical-align: middle;
 }
+
+select {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--card);
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  appearance: none; /* remove default arrow */
+}
+
+select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+#providerFields {
+  display: flex;
+  flex-direction: column;   /* stack fields vertically */
+  gap: 0.75rem;             /* spacing between each label+input pair */
+  margin-top: 0.5rem;
+}
+
+#providerFields label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+#providerFields input {
+  width: 100%;              /* fill container */
+  padding: 0.65rem 0.9rem;
+  font-size: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  outline: none;
+  background: var(--card);
+  color: var(--text);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#providerFields input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
