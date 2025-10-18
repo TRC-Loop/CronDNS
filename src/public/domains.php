@@ -171,7 +171,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
           <tr>
             <td><?= htmlspecialchars($d->domain) ?></td>
             <td><?= htmlspecialchars($d->provider) ?></td>
-            <td><?= htmlspecialchars(@gethostbyname($d->domain)) ?></td>
+            <?php
+            $ip = gethostbyname($d->domain);
+            $resolved = $ip === $d->domain ? null : $ip;
+            ?>
+            <td title="<?= $resolved ? '' : 'Domain could not be resolved' ?>">
+                <?= $resolved ?? 'N/A' ?>
+            </td>
             <td class="actions">
               <button class="small secondary"><i class="ti ti-eye"></i> Show</button>
               <button class="small"><i class="ti ti-edit"></i> Edit</button>
@@ -366,24 +372,27 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 
-function appendDomainRow(d) {
-  const tbody = table.querySelector('tbody');
+  function appendDomainRow(d) {
+    const tbody = table.querySelector('tbody');
 
-  const placeholder = tbody.querySelector('tr[data-placeholder]');
-  if (placeholder) placeholder.remove();
+    const placeholder = tbody.querySelector('tr[data-placeholder]');
+    if (placeholder) placeholder.remove();
 
-  const row = document.createElement('tr');
-  row.innerHTML = `
-    <td>${d.domain}</td>
-    <td>${d.provider}</td>
-    <td>${d.ip}</td>
-    <td class="actions">
-      <button class="small secondary"><i class="ti ti-eye"></i> Show</button>
-      <button class="small"><i class="ti ti-edit"></i> Edit</button>
-      <button class="small danger"><i class="ti ti-trash"></i> Delete</button>
-    </td>`;
-  tbody.appendChild(row);
-}
+    const row = document.createElement('tr');
+
+    const ip = d.ip && d.ip !== d.domain ? d.ip : 'N/A';
+    const ipTitle = ip === 'N/A' ? 'Domain could not be resolved' : '';
+    row.innerHTML = `
+<td>${d.domain}</td>
+<td>${d.provider}</td>
+<td title="${ipTitle}">${ip}</td>
+<td class="actions">
+  <button class="small secondary"><i class="ti ti-eye"></i> Show</button>
+  <button class="small"><i class="ti ti-edit"></i> Edit</button>
+  <button class="small danger"><i class="ti ti-trash"></i> Delete</button>
+</td>`;
+    tbody.appendChild(row);
+  }
   
 // Handle "Show" button click
 table.addEventListener('click', e => {
