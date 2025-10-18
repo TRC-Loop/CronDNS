@@ -2,55 +2,90 @@
 {% set active_page = 'domains' %}
 {% block main %}
 <?php
-require_once __DIR__."/../lib/utils.php";
-require_once __DIR__."/../conf/config.php";
-require_once __DIR__."/../lib/domain.php";
+require_once __DIR__ . "/../lib/utils.php";
+require_once __DIR__ . "/../conf/config.php";
+require_once __DIR__ . "/../lib/domain.php";
 
 $domainManager = new PersistentEntityManager(Domain::class, $logger, DB, 'domains');
 $domains = $domainManager->list([], ['domain' => 'ASC']);
 
-// Handle JSON AJAX POST submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' 
+if ($_SERVER['REQUEST_METHOD'] === 'POST'
     && strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false) {
 
-    ob_clean(); // clear any previous output
+    ob_clean();
     header('Content-Type: application/json');
-
     $input = json_decode(file_get_contents('php://input'), true);
-    $domain = trim($input['domain'] ?? '');
-    $provider = trim($input['provider'] ?? '');
-    $credentials = $input['credentials'] ?? [];
-
-    $success = false;
-    $error = '';
-    $newDomain = null;
+    $action = $input['action'] ?? 'create';
 
     try {
-        if (!$domain || !$provider) {
-            $error = 'Domain and provider are required.';
-        } else {
-            $existing = $domainManager->find(['domain'=>$domain]);
-            if (!$existing) {
+        switch ($action) {
+
+            case 'createDomain':
+                $domain = trim($input['domain'] ?? '');
+                $provider = trim($input['provider'] ?? '');
+                $credentials = $input['credentials'] ?? [];
+
+                if (!$domain || !$provider) {
+                    echo json_encode(['success' => false, 'error' => 'Domain and provider are required.']);
+                    exit;
+                }
+
+                $existing = $domainManager->find(['domain' => $domain]);
+                if ($existing) {
+                    echo json_encode(['success' => false, 'error' => "Domain $domain already exists"]);
+                    exit;
+                }
+
                 $d = new Domain();
                 $d->domain = $domain;
                 $d->provider = $provider;
                 $d->credentials = $credentials;
                 $domainManager->save($d);
-                $success = true;
-                $newDomain = [
-                    'domain' => $d->domain,
-                    'provider' => $d->provider,
-                    'ip' => gethostbyname($d->domain)
-                ];
-            } else {
-                $error = "Domain $domain already exists";
-            }
+
+                echo json_encode([
+                    'success' => true,
+                    'domain' => [
+                        'domain' => $d->domain,
+                        'provider' => $d->provider,
+                        'ip' => gethostbyname($d->domain)
+                    ]
+                ]);
+                exit;
+
+            case 'getDomainDetails':
+                $domainName = trim($input['domain'] ?? '');
+                if (!$domainName) {
+                    echo json_encode(['success' => false, 'error' => 'Missing domain parameter.']);
+                    exit;
+                }
+
+                $result = $domainManager->find(['domain' => $domainName]);
+                if (!$result) {
+                    echo json_encode(['success' => false, 'error' => 'Domain not found.']);
+                    exit;
+                }
+
+                echo json_encode([
+                    'success' => true,
+                    'domain' => [
+                        'domain' => $result->domain,
+                        'provider' => $result->provider,
+                        'credentials' => $result->credentials,
+                        'ip' => gethostbyname($result->domain),
+                        'created' => $result->Created,
+                        'updated' => $result->Updated
+                    ]
+                ]);
+                exit;
+
+            default:
+                echo json_encode(['success' => false, 'error' => 'Invalid action.']);
+                exit;
         }
-        echo json_encode(['success'=>$success,'error'=>$error,'domain'=>$newDomain]);
     } catch (Exception $e) {
-        echo json_encode(['success'=>false,'error'=>'Server error: '.$e->getMessage()]);
+        echo json_encode(['success' => false, 'error' => 'Server error: ' . $e->getMessage()]);
+        exit;
     }
-    exit;
 }
 ?>
 
@@ -129,7 +164,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
     <p id="createDomainError" class="error-text"></p>
   </div>
 </div>
+<div id="showDomainModal" class="modal">
+  <div class="modal-content large">
+    <h3>Domain Details</h3>
+    <div id="showDomainDetails" class="domain-details"></div>
 
+    <div class="modal-actions">
+      <button id="closeShowDomain">Close</button>
+    </div>
+  </div>
+</div>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const table = document.getElementById('domainTable');
@@ -262,6 +306,65 @@ function appendDomainRow(d) {
   tbody.appendChild(row);
 }
   
+// Handle "Show" button click
+table.addEventListener('click', e => {
+  if (!e.target.closest('button')) return;
+  const btn = e.target.closest('button');
+  if (!btn.textContent.includes('Show')) return;
+
+  const domain = btn.closest('tr').children[0].textContent.trim();
+  fetch(window.location.href, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'getDomainDetails', domain })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (!data.success) return alert(data.error || 'Failed to load domain info.');
+
+    const d = data.domain;
+    const creds = Object.entries(d.credentials || {})
+      .map(([k,v]) => `
+        <div class="cred-row">
+          <dt>${k}</dt>
+          <dd>
+            <input type="password" value="${v}" readonly>
+            <i class="ti ti-eye toggle-cred"></i>
+          </dd>
+        </div>
+      `).join('');
+
+    document.getElementById('showDomainDetails').innerHTML = `
+      <dl class="app-info-dl">
+        <dt>Domain</dt><dd>${d.domain}</dd>
+        <dt>Provider</dt><dd>${d.provider}</dd>
+        <dt>IP</dt><dd>${d.ip}</dd>
+        <dt>Created</dt><dd>${d.created}</dd>
+        <dt>Updated</dt><dd>${d.updated}</dd>
+      </dl>
+      <h4>Credentials</h4>
+      <div class="credentials">${creds || '<em>No credentials stored.</em>'}</div>
+    `;
+
+    document.getElementById('showDomainModal').style.display = 'flex';
+  })
+  .catch(console.error);
+});
+
+document.getElementById('closeShowDomain').addEventListener('click', () => {
+  document.getElementById('showDomainModal').style.display = 'none';
+});
+
+// Toggle credential visibility
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('toggle-cred')) {
+    const input = e.target.previousElementSibling;
+    input.type = input.type === 'password' ? 'text' : 'password';
+    e.target.classList.toggle('ti-eye');
+    e.target.classList.toggle('ti-eye-off');
+  }
+});
+
 });
 </script>
 {% endblock %}
