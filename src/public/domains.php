@@ -20,6 +20,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
     try {
         switch ($action) {
 
+          case 'updateDomain':
+              $domainName = trim($input['domain'] ?? '');
+              $credentials = $input['credentials'] ?? [];
+
+              if (!$domainName) {
+                  echo json_encode(['success' => false, 'error' => 'Missing domain parameter.']);
+                  exit;
+              }
+
+              $existing = $domainManager->find(['domain' => $domainName]);
+              if (!$existing) {
+                  echo json_encode(['success' => false, 'error' => 'Domain not found.']);
+                  exit;
+              }
+
+              $existing->credentials = $credentials;
+              $domainManager->save($existing);
+
+              echo json_encode([
+                  'success' => true,
+                  'domain' => [
+                      'domain' => $existing->domain,
+                      'provider' => $existing->provider,
+                      'ip' => gethostbyname($existing->domain),
+                      'updated' => $existing->Updated
+                  ]
+              ]);
+              exit;
             case 'createDomain':
                 $domain = trim($input['domain'] ?? '');
                 $provider = trim($input['provider'] ?? '');
@@ -172,6 +200,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
     <div class="modal-actions">
       <button id="closeShowDomain">Close</button>
     </div>
+  </div>
+</div>
+<div id="editDomainModal" class="modal">
+  <div class="modal-content large">
+    <h3>Edit Domain</h3>
+    <label for="editDomainName">Domain</label>
+    <input type="text" id="editDomainName" readonly>
+
+    <label for="editProvider">Provider</label>
+    <input type="text" id="editProvider" readonly>
+
+    <div id="editCredentialsContainer" class="credentials-group"></div>
+
+    <div class="modal-actions">
+      <button id="cancelEditDomain" class="secondary">Cancel</button>
+      <button id="saveEditDomain">Save Changes</button>
+    </div>
+    <p id="editDomainError" class="error-text"></p>
   </div>
 </div>
 <script>
@@ -364,7 +410,79 @@ document.addEventListener('click', e => {
     e.target.classList.toggle('ti-eye-off');
   }
 });
+table.addEventListener('click', e => {
+  if (!e.target.closest('button')) return;
+  const btn = e.target.closest('button');
+  if (!btn.textContent.includes('Edit')) return;
 
+  const domain = btn.closest('tr').children[0].textContent.trim();
+
+  fetch(window.location.href, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'getDomainDetails', domain })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (!data.success) return alert(data.error || 'Failed to load domain info.');
+
+    const d = data.domain;
+    document.getElementById('editDomainName').value = d.domain;
+    document.getElementById('editProvider').value = d.provider;
+
+    const container = document.getElementById('editCredentialsContainer');
+    container.innerHTML = '';
+
+    Object.entries(d.credentials || {}).forEach(([key, val]) => {
+      const label = document.createElement('label');
+      label.textContent = key;
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = val;
+      input.dataset.key = key;
+      container.appendChild(label);
+      container.appendChild(input);
+    });
+
+    document.getElementById('editDomainError').style.display = 'none';
+    document.getElementById('editDomainModal').style.display = 'flex';
+  })
+  .catch(console.error);
+});
+
+document.getElementById('cancelEditDomain').addEventListener('click', () => {
+  document.getElementById('editDomainModal').style.display = 'none';
+});
+
+document.getElementById('saveEditDomain').addEventListener('click', () => {
+  const domain = document.getElementById('editDomainName').value.trim();
+  const credentials = {};
+  document.querySelectorAll('#editCredentialsContainer input').forEach(inp => {
+    credentials[inp.dataset.key] = inp.value.trim();
+  });
+
+  fetch(window.location.href, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'updateDomain', domain, credentials })
+  })
+  .then(res => res.json())
+  .then(data => {
+    const err = document.getElementById('editDomainError');
+    if (!data.success) {
+      err.textContent = data.error;
+      err.style.display = 'block';
+      return;
+    }
+
+    document.getElementById('editDomainModal').style.display = 'none';
+    err.style.display = 'none';
+
+    // Optional: update "Updated" info visually or re-fetch row
+    alert('Domain updated successfully!');
+  })
+  .catch(console.error);
+});
 });
 </script>
 {% endblock %}
