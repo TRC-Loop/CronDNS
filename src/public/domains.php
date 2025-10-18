@@ -48,6 +48,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
                   ]
               ]);
               exit;
+
+          case 'deleteDomain':
+              $domainName = trim($input['domain'] ?? '');
+              if (!$domainName) {
+                  echo json_encode(['success' => false, 'error' => 'Missing domain parameter.']);
+                  exit;
+              }
+
+              $existing = $domainManager->find(['domain' => $domainName]);
+              if (!$existing) {
+                  echo json_encode(['success' => false, 'error' => 'Domain not found.']);
+                  exit;
+              }
+
+              if ($domainManager->delete($existing)) {
+                  echo json_encode(['success' => true]);
+              } else {
+                  echo json_encode(['success' => false, 'error' => 'Failed to delete domain.']);
+              }
+              exit;
             case 'createDomain':
                 $domain = trim($input['domain'] ?? '');
                 $provider = trim($input['provider'] ?? '');
@@ -220,6 +240,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
     <p id="editDomainError" class="error-text"></p>
   </div>
 </div>
+<div id="deleteDomainModal" class="modal">
+  <div class="modal-content small">
+    <h3>Confirm Deletion</h3>
+    <p>Are you sure you want to delete <strong id="deleteDomainName"></strong>?</p>
+
+    <div class="modal-actions">
+      <button id="cancelDeleteDomain" class="secondary">Cancel</button>
+      <button id="confirmDeleteDomain" class="danger">Delete</button>
+    </div>
+    <p id="deleteDomainError" class="error-text"></p>
+  </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const table = document.getElementById('domainTable');
@@ -483,6 +516,63 @@ document.getElementById('saveEditDomain').addEventListener('click', () => {
   })
   .catch(console.error);
 });
+const deleteModal = document.getElementById('deleteDomainModal');
+const deleteDomainNameEl = document.getElementById('deleteDomainName');
+const deleteError = document.getElementById('deleteDomainError');
+let domainToDelete = null;
+
+table.addEventListener('click', e => {
+  const btn = e.target.closest('button');
+  if (!btn || !btn.textContent.includes('Delete')) return;
+
+  const row = btn.closest('tr');
+  const domain = row.children[0].textContent.trim();
+  domainToDelete = row;
+  deleteDomainNameEl.textContent = domain;
+  deleteError.style.display = 'none';
+  deleteModal.style.display = 'flex';
 });
+
+document.getElementById('cancelDeleteDomain').addEventListener('click', () => {
+  deleteModal.style.display = 'none';
+  domainToDelete = null;
+});
+
+document.getElementById('confirmDeleteDomain').addEventListener('click', () => {
+  if (!domainToDelete) return;
+
+  const domain = deleteDomainNameEl.textContent.trim();
+  fetch(window.location.href, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'deleteDomain', domain })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      domainToDelete.remove();
+      deleteModal.style.display = 'none';
+
+      // Show "no domains" row if table empty
+      const tbody = table.querySelector('tbody');
+      if (!tbody.querySelector('tr')) {
+        const emptyRow = document.createElement('tr');
+        emptyRow.dataset.placeholder = true;
+        emptyRow.innerHTML = `<td colspan="4" style="text-align:center;">No domains added yet.</td>`;
+        tbody.appendChild(emptyRow);
+      }
+    } else {
+      deleteError.textContent = data.error || 'Delete failed.';
+      deleteError.style.display = 'block';
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    deleteError.textContent = 'Unexpected error.';
+    deleteError.style.display = 'block';
+  });
+});
+});
+
 </script>
 {% endblock %}
