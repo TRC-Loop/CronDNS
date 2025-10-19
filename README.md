@@ -20,8 +20,6 @@
   <a href="https://github.com/TRC-Loop/CronDNS/wiki/Supported-Registrars">Supported Registrars</a>
 </p>
 
-# Work in Progress!
-
 # CronDNS
 
 A Simple Webinterface to manage all your DynDNS Domains!
@@ -54,6 +52,7 @@ Coming Soon!
 - Uptime Kuma and Webhook integration
 - As simple as it gets
 - Full dashboard
+
 
 
 
