@@ -210,7 +210,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
     </select>
 
     <div id="providerFields"></div>
-
+    <p class="modal-note">
+      Need help setting up a provider? See the 
+      <a href="https://github.com/TRC-Loop/CronDNS/wiki/Provider-Setup" target="_blank">Provider Setup Guide</a>.
+    </p>
     <div class="modal-actions">
       <button id="cancelCreateDomain" class="secondary">Cancel</button>
       <button id="okCreateDomain">Create</button>

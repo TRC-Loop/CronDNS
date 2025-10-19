@@ -724,3 +724,19 @@ select:focus {
 .modal-content.small {
   max-width: 400px;
 }
+
+.modal-note {
+  font-size: 0.85rem;
+  color: var(--link);
+  margin: 0.5rem 0 1rem 0;
+}
+
+.modal-note a {
+  color: var(--primary);
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.modal-note a:hover {
+  color: var(--primary-hover);
+}
