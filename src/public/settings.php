@@ -1,9 +1,16 @@
 <?php
 require_once __DIR__."/../lib/utils.php";
 require_once __DIR__."/../conf/config.php";
+require_once __DIR__ . "/../lib/domain.php";
+
+$domainManager = new PersistentEntityManager(Domain::class, $logger, DB, 'domains');
+$totalDomains = $domainManager->getPDO()->query("SELECT COUNT(*) FROM domains")->fetchColumn();
 
 $apiKeyObject = $settingsManager->find(["key"=>"apiKey"]);
 $apiKey = $apiKeyObject->value;
+
+$lastDynDnsRun = $settingsManager->find(["key" => "lastDynDnsRun"]);
+$lastDynDnsRunValue = $lastDynDnsRun ? date('Y-m-d H:i:s', strtotime($lastDynDnsRun->value)) : 'Never';
 ?>
 {% extends 'templates/dashboard.j2' %}
 {% set active_page = 'settings' %}
@@ -54,8 +61,8 @@ $apiKey = $apiKeyObject->value;
 
   <dl class="app-info-dl">
     <dt>Database Size</dt><dd><?= getFileSize(DB) ?></dd>
-    <dt>Last updater run</dt><dd>5h ago</dd>
-    <dt>Total Domains</dt><dd>0</dd>
+    <dt>Last updater run</dt><dd><?= htmlspecialchars($lastDynDnsRunValue) ?></dd>
+    <dt>Total Domains</dt><dd><?= htmlspecialchars($totalDomains) ?></dd>
   </dl>
 
   <div class="app-info-inline">
