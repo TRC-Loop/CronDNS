@@ -48,7 +48,7 @@ def main():
     use_gitignore = build_config.get("use_gitignore", False)
 
     project_root = os.getcwd()
-    clean_output_dir(output_dir)
+    # clean_output_dir(output_dir)
 
     jinja_templater = JinjaTemplater(src_dir)
     config["build_timestamp"] = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")

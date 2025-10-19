@@ -296,14 +296,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const providerFields = document.getElementById('providerFields');
   const errorText = document.getElementById('createDomainError');
 
+
   const providerFieldMap = {
-    strato: [{ label: 'Username', id: 'stratoUser', type: 'text' },
-             { label: 'Password', id: 'stratoPass', type: 'password' }],
-    namecheap: [{ label: 'API Key', id: 'namecheapApiKey', type: 'text' },
-                { label: 'API User', id: 'namecheapApiUser', type: 'text' },
-                { label: 'Client IP', id: 'namecheapClientIp', type: 'text' }],
-    cloudflare: [{ label: 'API Token', id: 'cfApiToken', type: 'text' },
-                 { label: 'Zone ID', id: 'cfZoneId', type: 'text' }]
+    strato: [
+      { label: 'Username', id: 'stratoUser', type: 'text' },
+      { label: 'Password', id: 'stratoPass', type: 'password' }
+    ],
+    namecheap: [
+      { label: 'Dynamic DNS Password', id: 'namecheapPassword', type: 'password' }
+    ],
+    cloudflare: [
+      { label: 'API Token', id: 'cfApiToken', type: 'text' },
+      { label: 'Zone ID', id: 'cfZoneId', type: 'text' }
+    ]
   };
 
   createBtn.addEventListener('click', () => {
@@ -349,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // AJAX POST
-    fetch(window.location.href, {
+    fetch(window.location.pathname, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'createDomain', domain, provider, credentials })

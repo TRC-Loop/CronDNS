@@ -6,6 +6,7 @@ class Domain extends PersistentEntity {
     public string $domain;
     public string $provider;
     public array $credentials;
+    public ?string $last_ip = null;
 }
 
 ?>
