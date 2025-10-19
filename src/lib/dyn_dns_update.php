@@ -53,3 +53,14 @@ foreach ($domains as $d) {
 }
 
 $logger->info('DynDNS update completed.');
+
+$lastRun = $settingsManager->find(["key" => "lastDynDnsRun"]);
+
+if (!$lastRun) {
+    $lastRun = new KeyValue();
+    $lastRun->key = "lastDynDnsRun";
+}
+
+$lastRun->value = date('c'); // ISO8601 timestamp
+$settingsManager->save($lastRun);
+
