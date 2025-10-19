@@ -1,6 +1,7 @@
 {% extends 'templates/dashboard.j2' %}
 {% set active_page = 'home' %}
 {% block main %}
-<h1>Home</h1>
-<h2>Good afternoon!</h2>
+<div class="dashboard-title">
+  <i class="ti ti-home"></i><h1>Home</h1>
+</div>
 {% endblock %}
