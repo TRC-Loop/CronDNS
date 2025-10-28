@@ -55,10 +55,15 @@ $lastDynDnsRunValue = $lastDynDnsRun ? date('Y-m-d H:i:s', strtotime($lastDynDns
 </div>
 
 <div class="group-box" data-title="Info">
-  <button onclick="window.location.href='php-info.php'" title="View phpinfo().">
-    <i class="ti ti-info-circle"></i>PHP Info
-  </button>
+  <div class="info-buttons">
+    <button onclick="window.location.href='php-info.php'" title="View phpinfo().">
+      <i class="ti ti-info-circle"></i>PHP Info
+    </button>
 
+    <button id="checkUpdatesBtn" title="Check for updates">
+      <i class="ti ti-refresh"></i>Check for Updates
+    </button>
+  </div>
   <dl class="app-info-dl">
     <dt>Database Size</dt><dd><?= getFileSize(DB) ?></dd>
     <dt>Last updater run</dt><dd><?= htmlspecialchars($lastDynDnsRunValue) ?></dd>

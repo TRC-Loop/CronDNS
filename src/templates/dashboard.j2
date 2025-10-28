@@ -39,26 +39,32 @@ if (!isset($_SESSION['user']) || empty($_SESSION['user'])) {
   </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', async () => {
-  const currentVersion = '{{ cfg.version }}'; // your current app version
-  const repo = 'TRC-Loop/CronDNS'; // your GitHub repo
-  const releasesApi = `https://api.github.com/repos/${repo}/releases/latest`;
+document.addEventListener('DOMContentLoaded', () => {
+  const repo = 'TRC-Loop/CronDNS';
+  const currentVersion = '{{ cfg.version }}';
+  const checkButton = document.getElementById('checkUpdatesBtn');
 
-  try {
-    const res = await fetch(releasesApi, {
-      headers: { 'User-Agent': 'CronDNS VersionCheck (crondns v{{ cfg.version }})' }
-    });
+  async function checkForUpdates(manual = false) {
+    const api = `https://api.github.com/repos/${repo}/releases/latest`;
+    try {
+      const res = await fetch(api, { headers: { 'User-Agent': 'CronDNS-VersionCheck' } });
+      if (!res.ok) throw new Error('GitHub API error');
+      const data = await res.json();
 
-    if (!res.ok) return;
+      const latest = data.tag_name?.replace(/^v/i, '') ?? null;
+      if (!latest) return;
 
-    const data = await res.json();
-    const latest = data.tag_name?.replace(/^v/i, '') ?? null;
-    if (!latest) return;
-
-    const current = currentVersion.replace(/^v/i, '');
-    if (isOutdated(current, latest)) showUpdateBanner(latest);
-  } catch (err) {
-    console.warn('Version check failed:', err);
+      const current = currentVersion.replace(/^v/i, '');
+      if (isOutdated(current, latest)) {
+        showUpdateNotice(latest);
+        if (manual) showToast(`New version available: v${latest}`);
+      } else if (manual) {
+        showToast(`You are up to date! (v${currentVersion})`);
+      }
+    } catch (err) {
+      if (manual) showToast('Failed to check for updates.');
+      console.warn('Version check failed:', err);
+    }
   }
 
   function isOutdated(current, latest) {
@@ -66,32 +72,53 @@ document.addEventListener('DOMContentLoaded', async () => {
     return normalize(current) < normalize(latest);
   }
 
-  function showUpdateBanner(latest) {
-    const dismissed = localStorage.getItem('dismissedVersion');
+  function showUpdateNotice(latest) {
+    const dismissed = sessionStorage.getItem('dismissedVersion');
     if (dismissed === latest) return;
 
-    const banner = document.createElement('div');
-    banner.className = 'update-banner';
-    banner.dataset.latest = latest;
-    banner.innerHTML = `
-      <div class="update-text">
+    const notice = document.createElement('div');
+    notice.className = 'app-notice';
+    notice.dataset.latest = latest;
+    notice.innerHTML = `
+      <div class="notice-text">
         <i class="ti ti-alert-triangle"></i>
         <strong>Update available:</strong>
         You are using version <code>${currentVersion}</code>.
-        The latest version is <code>${latest}</code>.
+        Latest is <code>${latest}</code>.
       </div>
-      <div class="update-actions">
+      <div class="notice-actions">
         <a href="https://github.com/${repo}/releases/latest" target="_blank">Update Now</a>
-        <button class="dismiss-btn" title="Hide this message">Dismiss</button>
+        <button class="btn-secondary dismiss-notice">Dismiss</button>
       </div>
     `;
 
     const content = document.querySelector('.content');
-    content?.prepend(banner);
+    content?.prepend(notice);
 
-    banner.querySelector('.dismiss-btn').addEventListener('click', () => {
-      banner.remove();
-      localStorage.setItem('dismissedVersion', latest);
+    notice.querySelector('.dismiss-notice').addEventListener('click', () => {
+      notice.remove();
+      sessionStorage.setItem('dismissedVersion', latest);
+    });
+  }
+
+  function showToast(text) {
+    const t = document.createElement('div');
+    t.className = 'toast-message';
+    t.textContent = text;
+    document.body.appendChild(t);
+    setTimeout(() => t.classList.add('visible'), 10);
+    setTimeout(() => t.classList.remove('visible'), 2500);
+    setTimeout(() => t.remove(), 3000);
+  }
+
+  // Auto check on load
+  checkForUpdates();
+
+  // Manual recheck
+  if (checkButton) {
+    checkButton.addEventListener('click', () => {
+      sessionStorage.removeItem('dismissedVersion'); // clear before recheck
+      checkForUpdates(true);
     });
   }
 });
