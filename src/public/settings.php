@@ -82,8 +82,15 @@ $lastDynDnsRunValue = $lastDynDnsRun ? date('Y-m-d H:i:s', strtotime($lastDynDns
       <strong>Version:</strong> {{ cfg.version }}
       <i class="ti ti-copy copy-icon" data-copy="{{ cfg.version }}" title="Copy Version"></i>
     </span>
+
+    <div class="links">
+      <a href="https://github.com/TRC-Loop/CronDNS/wiki" target="_blank">Documentation</a>
+      <span class="separator">·</span>
+      <a href="https://github.com/TRC-Loop/CronDNS" target="_blank">GitHub</a>
+    </div>
   </div>
 </div>
+
 
 <script>
   // Copy icon logic

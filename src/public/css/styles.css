@@ -130,20 +130,20 @@ body.login-page {
 .login-card button:disabled { opacity: 0.6; cursor: not-allowed; }
 
 
-.login-card .links {
+.links {
   margin-top: 1.25rem;
   font-size: 0.85rem;
   color: var(--link);
 }
 
-.login-card .links a {
+.links a {
   color: var(--link);
   text-decoration: none;
   transition: color 0.2s;
 }
 
-.login-card .links a:hover { color: var(--link-hover); }
-.login-card .links .separator { margin: 0 0.4rem; }
+.links a:hover { color: var(--link-hover); }
+.links .separator { margin: 0 0.4rem; }
 
 
 .login-card .version {
