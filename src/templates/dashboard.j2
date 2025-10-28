@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 session_start();
 
 if (!isset($_SESSION['user']) || empty($_SESSION['user'])) {
@@ -32,10 +34,68 @@ if (!isset($_SESSION['user']) || empty($_SESSION['user'])) {
       <div class="sidebar-version">v{{ cfg.version }}</div>
     </div>
   </div>
-
   <div class="content">
     {% block main %}{% endblock %}
   </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const currentVersion = '{{ cfg.version }}'; // your current app version
+  const repo = 'TRC-Loop/CronDNS'; // your GitHub repo
+  const releasesApi = `https://api.github.com/repos/${repo}/releases/latest`;
+
+  try {
+    const res = await fetch(releasesApi, {
+      headers: { 'User-Agent': 'CronDNS VersionCheck (crondns v{{ cfg.version }})' }
+    });
+
+    if (!res.ok) return;
+
+    const data = await res.json();
+    const latest = data.tag_name?.replace(/^v/i, '') ?? null;
+    if (!latest) return;
+
+    const current = currentVersion.replace(/^v/i, '');
+    if (isOutdated(current, latest)) showUpdateBanner(latest);
+  } catch (err) {
+    console.warn('Version check failed:', err);
+  }
+
+  function isOutdated(current, latest) {
+    const normalize = v => v.split(/[^0-9a-z]+/i).map(x => x.padStart(4, '0')).join('');
+    return normalize(current) < normalize(latest);
+  }
+
+  function showUpdateBanner(latest) {
+    const dismissed = localStorage.getItem('dismissedVersion');
+    if (dismissed === latest) return;
+
+    const banner = document.createElement('div');
+    banner.className = 'update-banner';
+    banner.dataset.latest = latest;
+    banner.innerHTML = `
+      <div class="update-text">
+        <i class="ti ti-alert-triangle"></i>
+        <strong>Update available:</strong>
+        You are using version <code>${currentVersion}</code>.
+        The latest version is <code>${latest}</code>.
+      </div>
+      <div class="update-actions">
+        <a href="https://github.com/${repo}/releases/latest" target="_blank">Update Now</a>
+        <button class="dismiss-btn" title="Hide this message">Dismiss</button>
+      </div>
+    `;
+
+    const content = document.querySelector('.content');
+    content?.prepend(banner);
+
+    banner.querySelector('.dismiss-btn').addEventListener('click', () => {
+      banner.remove();
+      localStorage.setItem('dismissedVersion', latest);
+    });
+  }
+});
+</script>
 
 </div>
 {% endblock %}

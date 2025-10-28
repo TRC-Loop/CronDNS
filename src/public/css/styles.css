@@ -826,3 +826,77 @@ select:focus {
     font-size: 1.6rem;
   }
 }
+
+.update-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: #e6f0ff;
+  color: #1e40af;
+  border: 1px solid #3b82f6;
+  border-radius: 8px;
+  padding: 0.9rem 1.25rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+  font-size: 0.95rem;
+  animation: slideDown 0.4s ease;
+}
+
+.update-text i {
+  font-size: 1.1rem;
+  margin-right: 0.5rem;
+  color: #1e3a8a;
+}
+
+.update-banner a {
+  background: #3b82f6;
+  color: #fff;
+  text-decoration: none;
+  padding: 0.45rem 0.9rem;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.update-banner a:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.update-banner .dismiss-btn {
+  background: transparent;
+  color: #1e40af;
+  border: 1px solid #93c5fd;
+  border-radius: 6px;
+  padding: 0.45rem 0.9rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.update-banner .dismiss-btn:hover {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-color: #3b82f6;
+  transform: translateY(-1px);
+}
+
+.update-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
