@@ -748,9 +748,15 @@ select:focus {
 .stats-grid {
   margin-top: 2rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
   width: 100%;
+}
+
+@media (max-width: 600px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .stat-card {
@@ -803,9 +809,10 @@ select:focus {
 }
 
 #public-ip-card h3,
+#server-public-ip-card h3,
 #last-dyndns-card h3 {
   font-family: monospace;
-  font-size: 1.15rem;
+  font-size: 1.15rem; /* Match smaller size */
   letter-spacing: 0.4px;
   word-break: break-all;
 }

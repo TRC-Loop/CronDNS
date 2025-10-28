@@ -29,6 +29,14 @@ $lastDynDnsRunValue = $lastDynDnsRun ? date('Y-m-d H:i:s', strtotime($lastDynDns
     </div>
   </div>
 
+  <div class="stat-card">
+    <div class="stat-icon"><i class="ti ti-clock"></i></div>
+    <div class="stat-info">
+      <h3 id="last-dyndns"><?= htmlspecialchars($lastDynDnsRunValue) ?></h3>
+      <p>Last DynDNS Update</p>
+    </div>
+  </div>
+
   <div class="stat-card" id="public-ip-card">
     <div class="stat-icon"><i class="ti ti-network"></i></div>
     <div class="stat-info">
@@ -38,13 +46,15 @@ $lastDynDnsRunValue = $lastDynDnsRun ? date('Y-m-d H:i:s', strtotime($lastDynDns
     </div>
   </div>
 
-  <div class="stat-card">
-    <div class="stat-icon"><i class="ti ti-clock"></i></div>
+  <div class="stat-card" id="server-public-ip-card">
+    <div class="stat-icon"><i class="ti ti-server"></i></div>
     <div class="stat-info">
-      <h3 id="last-dyndns"><?= htmlspecialchars($lastDynDnsRunValue) ?></h3>
-      <p>Last DynDNS Update</p>
+      <h3 id="server-public-ip">Loading...</h3>
+      <p>Server Public IP</p>
+      <small id="server-ip-last-updated" style="color: var(--placeholder); font-size: 0.8rem;"></small>
     </div>
   </div>
+
 </div>
 
 <script>
@@ -75,7 +85,29 @@ async function updatePublicIP() {
     timeEl.textContent = `Last checked: ${formatTime()}`;
   }
 }
+async function updateServerPublicIP() {
+  const ipEl = document.getElementById('server-public-ip');
+  const timeEl = document.getElementById('server-ip-last-updated');
+  try {
+    const res = await fetch('/api/server-public-ip.php', { headers: { 'X-API-KEY': apiKey } });
+    const data = await res.json();
+    if (!res.ok || !data.ok || !data.ipv4) {
+      ipEl.textContent = 'Unavailable';
+      ipEl.style.color = 'var(--danger)';
+    } else {
+      ipEl.textContent = data.ipv4;
+      ipEl.style.color = 'var(--success)';
+    }
+    timeEl.textContent = `Last checked: ${formatTime()}`;
+  } catch {
+    ipEl.textContent = 'Error';
+    ipEl.style.color = 'var(--danger)';
+    timeEl.textContent = `Last checked: ${formatTime()}`;
+  }
+}
 
+updateServerPublicIP();
+setInterval(updateServerPublicIP, 10000);
 updatePublicIP();
 setInterval(updatePublicIP, 10000);
 </script>
