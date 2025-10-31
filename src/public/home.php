@@ -105,7 +105,6 @@ async function updateServerPublicIP() {
     timeEl.textContent = `Last checked: ${formatTime()}`;
   }
 }
-
 updateServerPublicIP();
 setInterval(updateServerPublicIP, 10000);
 updatePublicIP();

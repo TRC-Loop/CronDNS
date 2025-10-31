@@ -8,6 +8,30 @@ require_once __DIR__."/../conf/config.php";
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
     <link rel="stylesheet" href="css/styles.css">
+    <script>
+(() => {
+  const root = document.documentElement;
+  const themeKey = 'theme';
+  const stored = localStorage.getItem(themeKey);
+
+  // Apply stored preference
+  if (stored === 'dark') root.classList.add('dark');
+
+  // Sync across multiple tabs
+  window.addEventListener('storage', e => {
+    if (e.key === themeKey) {
+      root.classList.toggle('dark', e.newValue === 'dark');
+    }
+  });
+
+  // Optional: allow external toggles (dispatch event manually if needed)
+  window.addEventListener('theme-toggle', e => {
+    const mode = e.detail === 'dark' ? 'dark' : 'light';
+    root.classList.toggle('dark', mode === 'dark');
+    localStorage.setItem(themeKey, mode);
+  });
+})();
+</script>
   </head>
   <body>
     <main>
@@ -24,6 +48,7 @@ require_once __DIR__."/../conf/config.php";
     </main>
     <script>
     {% block scripts %}{% endblock %}
+
     </script>
   </body>
 </html>

@@ -16,6 +16,27 @@
   --danger: #dc2626;
   --surface-variant: #f6f6f7;
   --accent: #3b82f6;
+  --text-input-background: #fafafa;
+}
+
+:root.dark {
+  --bg: #0d1117;
+  --card: #161b22;
+  --primary: #6366f1;
+  --primary-light: #79b8ff;
+  --primary-hover: #1f6feb;
+  --border: #30363d;
+  --text: #c9d1d9;
+  --placeholder: #8b949e;
+  --link: #8b949e;
+  --link-hover: #58a6ff;
+  --error: #f85149;
+  --error-light: #2d0808;
+  --success: #3fb950;
+  --danger: #da3633;
+  --surface-variant: #1c2128;
+  --accent: #58a6ff;
+  --text-input-background: #1c2128;
 }
 
 /* ---------- Base ---------- */
@@ -30,6 +51,13 @@ body {
   background: var(--bg);
   height: 100vh;
   width: 100vw;
+}
+
+html {
+  transition: background-color 0.3s, color 0.3s;
+}
+body, .card, .group-box, .sidebar, .content {
+  transition: background 0.3s, color 0.3s, border-color 0.3s;
 }
 
 
@@ -74,7 +102,7 @@ body.login-page {
   border: 1px solid var(--border);
   border-radius: 8px;
   transition: border-color 0.2s, box-shadow 0.2s;
-  background: #fafafa;
+  background: var(--text-input-background);
   color: var(--text);
 }
 
@@ -288,6 +316,7 @@ body.login-page {
   padding: 1.5rem;
   margin-top: 1.5rem;
   background: var(--bg); 
+  color: var(--text);
 }
 
 
@@ -301,6 +330,7 @@ body.login-page {
   font-weight: 600;
   font-size: 0.9rem;
   color: #333;
+  color: var(--text);
 }
 
 
@@ -420,6 +450,7 @@ button.small {
 .modal-content {
   background: var(--card);
   padding: 1.5rem;
+  color: var(--text);
   border-radius: 8px;
   width: 320px;
   display: flex;
@@ -464,6 +495,7 @@ button.small {
   gap: 0.75rem;
   margin-bottom: 1rem;
 }
+
 
 .search-wrapper {
   position: relative;
@@ -605,6 +637,14 @@ select:focus {
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
+dd input,
+#editDomainName,
+#editProvider,
+#domainName {
+  background-color: var(--text-input-background);
+  color: var(--text);
+}
+
 #providerFields {
   display: flex;
   flex-direction: column;   
@@ -625,7 +665,7 @@ select:focus {
   border: 1px solid var(--border);
   border-radius: 6px;
   outline: none;
-  background: var(--card);
+  background: var(--text-input-background);
   color: var(--text);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -682,8 +722,8 @@ select:focus {
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 0.4rem 0.6rem;
-  background: var(--bg);
   font-size: 0.95rem;
+  background: var(--text-input-background);
 }
 
 .toggle-cred {
@@ -716,7 +756,7 @@ select:focus {
   border: 1px solid var(--border);
   border-radius: 6px;
   outline: none;
-  background: var(--card);
+  background: var(--text-input-background);
   color: var(--text);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -812,7 +852,7 @@ select:focus {
 #server-public-ip-card h3,
 #last-dyndns-card h3 {
   font-family: monospace;
-  font-size: 1.15rem; /* Match smaller size */
+  font-size: 1.15rem;
   letter-spacing: 0.4px;
   word-break: break-all;
 }
@@ -928,4 +968,51 @@ select:focus {
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 1rem;
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.theme-toggle input {
+  display: none;
+}
+
+.theme-toggle .slider {
+  position: relative;
+  width: 48px;
+  height: 26px;
+  background: var(--border);
+  border-radius: 30px;
+  transition: background 0.25s;
+}
+
+.theme-toggle .slider::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background: var(--card);
+  border-radius: 50%;
+  transition: transform 0.25s, background 0.25s;
+}
+
+.theme-toggle input:checked + .slider {
+  background: var(--primary);
+}
+
+.theme-toggle input:checked + .slider::before {
+  transform: translateX(22px);
+  background: var(--bg);
+}
+
+.theme-toggle .label-text {
+  font-size: 0.95rem;
+  color: var(--text);
 }
