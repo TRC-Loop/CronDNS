@@ -812,7 +812,7 @@ select:focus {
 #server-public-ip-card h3,
 #last-dyndns-card h3 {
   font-family: monospace;
-  font-size: 1.15rem; /* Match smaller size */
+  font-size: 1.15rem; 
   letter-spacing: 0.4px;
   word-break: break-all;
 }
