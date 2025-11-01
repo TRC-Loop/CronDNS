@@ -97,9 +97,9 @@ $lastDynDnsRunValue = $lastDynDnsRun ? date('Y-m-d H:i:s', strtotime($lastDynDns
     </span>
 
     <div class="links">
-      <a href="https://github.com/TRC-Loop/CronDNS/wiki" target="_blank">Documentation</a>
+      <a href="https://github.com/TRC-Loop/CronDNS/wiki" target="_blank">Documentation<i class="ti ti-external-link"></i></a>
       <span class="separator">·</span>
-      <a href="https://github.com/TRC-Loop/CronDNS" target="_blank">GitHub</a>
+      <a href="https://github.com/TRC-Loop/CronDNS" target="_blank">GitHub<i class="ti ti-external-link"></i></a>
     </div>
   </div>
 </div>
