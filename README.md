@@ -29,6 +29,8 @@
 
 A Simple Webinterface to manage all your DynDNS Domains!
 
+**There is a malicous fake-repository going around. Make sure that the repo is by `TRC-Loop` and the Docker by `trcloop`**
+
 ## DynDNS
 
 **Dynamic DNS (DynDNS)** is a technique that lets a fixed hostname always resolve to the current public IP address of a device whose IP changes frequently.
@@ -68,6 +70,7 @@ docker run -d \
 - Uptime Kuma and Webhook integration
 - As simple as it gets
 - Full dashboard
+
 
 
 
