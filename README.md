@@ -4,8 +4,8 @@
     <img src="https://img.shields.io/github/stars/TRC-Loop/CronDNS?style=for-the-badge"/>
     <img src="https://img.shields.io/github/forks/TRC-Loop/CronDNS?style=for-the-badge"/>
     <img src="https://img.shields.io/github/license/TRC-Loop/CronDNS?style=for-the-badge"/>
-    <img src="https://img.shields.io/github/commit-activity/m/TRC-Loop/CronDNS?style=for-the-badge">
     <img src="https://img.shields.io/github/check-runs/TRC-Loop/CronDNS/main?style=for-the-badge">
+    <img src="https://img.shields.io/docker/v/trcloop/crondns?style=for-the-badge&logo=docker">
   </div>
 </a>
 <p align="center">
@@ -57,6 +57,9 @@ docker run -d \
   -v crondns-data:/var/www/crondns/data \
   trcloop/crondns:latest
 ```
+> [!IMPORTANT]  
+> The default password is `cr0ndns!42+`. It should be changed immediatly in the settings upon logging in for the first time. Choose a secure password with atleast 8 Characters
+
 
 ## Features
 - Only tries to change the IP Address when needed
@@ -65,6 +68,9 @@ docker run -d \
 - Uptime Kuma and Webhook integration
 - As simple as it gets
 - Full dashboard
+
+
+
 
 
 
