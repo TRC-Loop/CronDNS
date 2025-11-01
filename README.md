@@ -8,8 +8,6 @@
     <img src="https://img.shields.io/github/check-runs/TRC-Loop/CronDNS/main?style=for-the-badge">
   </div>
 </a>
-
-
 <p align="center">
   <a href="">How it Works</a>
   ·
@@ -19,6 +17,11 @@
   ·
   <a href="https://github.com/TRC-Loop/CronDNS/wiki/Supported-Registrars">Supported Registrars</a>
 </p>
+<br/><br/><br/>
+
+<img src="https://github.com/TRC-Loop/CronDNS/blob/main/.github/assets/crondns_screenshot.webp"/>
+
+
 
 # CronDNS
 
@@ -52,6 +55,7 @@ Coming Soon!
 - Uptime Kuma and Webhook integration
 - As simple as it gets
 - Full dashboard
+
 
 
 
