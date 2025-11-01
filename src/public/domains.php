@@ -1,6 +1,3 @@
-{% extends 'templates/dashboard.j2' %}
-{% set active_page = 'domains' %}
-{% block main %}
 <?php
 require_once __DIR__ . "/../lib/utils.php";
 require_once __DIR__ . "/../conf/config.php";
@@ -12,7 +9,6 @@ $domains = $domainManager->list([], ['domain' => 'ASC']);
 if ($_SERVER['REQUEST_METHOD'] === 'POST'
     && strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false) {
 
-    ob_clean();
     header('Content-Type: application/json');
     $input = json_decode(file_get_contents('php://input'), true);
     $action = $input['action'] ?? 'create';
@@ -136,6 +132,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
     }
 }
 ?>
+{% extends 'templates/dashboard.j2' %}
+{% set active_page = 'domains' %}
+{% block main %}
 
 <div class="dashboard-title">
   <i class="ti ti-world"></i>
