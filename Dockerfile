@@ -16,7 +16,7 @@ RUN poetry run python3 main.py --env prod
 # ===============================
 # Stage 2: Apache + PHP runtime
 # ===============================
-FROM php:8.3-apache
+FROM php:8.4-apache
 
 # Install cron
 RUN apt-get update && apt-get install -y cron \
