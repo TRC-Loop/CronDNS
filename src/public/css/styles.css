@@ -880,13 +880,12 @@ dd input,
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 1rem;
-  background: #e6f0ff;
-  color: #1e40af;
-  border: 1px solid #3b82f6;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 0.9rem 1.25rem;
   margin-bottom: 1.25rem;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
   font-size: 0.95rem;
   animation: slideDown 0.4s ease;
 }
@@ -894,7 +893,7 @@ dd input,
 .notice-text i {
   font-size: 1.1rem;
   margin-right: 0.5rem;
-  color: #1e3a8a;
+  color: var(--primary);
 }
 
 .notice-actions {
@@ -920,7 +919,7 @@ dd input,
 
 .btn-secondary {
   background: transparent;
-  color: #1e40af;
+  color: #fff;
   border: 1px solid #93c5fd;
   border-radius: 6px;
   padding: 0.45rem 0.9rem;
@@ -931,8 +930,8 @@ dd input,
 }
 
 .btn-secondary:hover {
-  background: #dbeafe;
-  color: #1d4ed8;
+  color: #fff;
+  background: var(--primary);
   border-color: #3b82f6;
   transform: translateY(-1px);
 }
