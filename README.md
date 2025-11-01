@@ -57,6 +57,9 @@ docker run -d \
   -v crondns-data:/var/www/crondns/data \
   trcloop/crondns:latest
 ```
+> [!IMPORTANT]  
+> The default password is `cr0ndns!42+`. It should be changed immediatly in the settings upon logging in for the first time. Choose a secure password with atleast 8 Characters
+
 
 ## Features
 - Only tries to change the IP Address when needed
@@ -65,6 +68,7 @@ docker run -d \
 - Uptime Kuma and Webhook integration
 - As simple as it gets
 - Full dashboard
+
 
 
 
