@@ -26,4 +26,4 @@ jobs:
         with:
           push: true
           file: ./Dockerfile
-          tags: TRC-Loop/crondns:${{ github.ref_name }}
+          tags: trcloop/crondns:${{ github.ref_name }}
