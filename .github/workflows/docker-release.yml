@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set up Docker Buildx
@@ -24,8 +24,9 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          push: true
+          context: .
           file: ./Dockerfile
+          push: true
           tags: |
             trcloop/crondns:${{ github.ref_name }}
             trcloop/crondns:latest
