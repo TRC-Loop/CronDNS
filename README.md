@@ -15,6 +15,8 @@
   ·
   <a href="https://github.com/TRC-Loop/CronDNS/wiki">Documentation</a>
   ·
+  <a href="https://hub.docker.com/r/trcloop/crondns">Docker</a>
+  ·
   <a href="https://github.com/TRC-Loop/CronDNS/wiki/Supported-Registrars">Supported Registrars</a>
 </p>
 <br/><br/><br/>
@@ -46,7 +48,15 @@ When your ISP assigns a new IP to your home network, the DNS record for `myhome.
 
 ## Installation
 
-Coming Soon!
+https://hub.docker.com/r/trcloop/crondns
+
+```
+docker run -d \
+  --name crondns \
+  -p 8080:80 \
+  -v crondns-data:/var/www/crondns/data \
+  trcloop/crondns:latest
+```
 
 ## Features
 - Only tries to change the IP Address when needed
@@ -55,6 +65,7 @@ Coming Soon!
 - Uptime Kuma and Webhook integration
 - As simple as it gets
 - Full dashboard
+
 
 
 
