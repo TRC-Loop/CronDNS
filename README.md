@@ -4,7 +4,6 @@
     <img src="https://img.shields.io/github/stars/TRC-Loop/CronDNS?style=for-the-badge"/>
     <img src="https://img.shields.io/github/forks/TRC-Loop/CronDNS?style=for-the-badge"/>
     <img src="https://img.shields.io/github/license/TRC-Loop/CronDNS?style=for-the-badge"/>
-    <img src="https://img.shields.io/github/commit-activity/m/TRC-Loop/CronDNS?style=for-the-badge">
     <img src="https://img.shields.io/github/check-runs/TRC-Loop/CronDNS/main?style=for-the-badge">
     <img src="https://img.shields.io/docker/v/trcloop/crondns?style=for-the-badge&logo=docker">
   </div>
@@ -69,6 +68,7 @@ docker run -d \
 - Uptime Kuma and Webhook integration
 - As simple as it gets
 - Full dashboard
+
 
 
 
