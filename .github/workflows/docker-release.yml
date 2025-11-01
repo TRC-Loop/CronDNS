@@ -1,9 +1,13 @@
 name: Build Docker on Release
-
 on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Docker image tag (manual run)'
+        required: false
+        default: 'manual'
   release:
     types: [created]
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
