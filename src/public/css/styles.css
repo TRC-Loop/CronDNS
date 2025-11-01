@@ -311,7 +311,7 @@ body.login-page {
 
 .group-box {
   position: relative;
-  border: 1px solid #ccc;
+  border: 1px solid var(--placeholder);
   border-radius: 8px;
   padding: 1.5rem;
   margin-top: 1.5rem;
@@ -329,8 +329,7 @@ body.login-page {
   padding: 0 0.5rem;
   font-weight: 600;
   font-size: 0.9rem;
-  color: #333;
-  color: var(--text);
+  color: var(--placeholder);
 }
 
 
