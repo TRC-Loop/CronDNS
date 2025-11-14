@@ -1,1 +1,1 @@
-*/5 * * * * www-data php /var/www/crondns/src/lib/dyn_dns_update.php >> /var/www/crondns/data/cron.log 2>&1
+*/5 * * * * www-data php /var/www/crondns/dist/lib/dyn_dns_update.php >> /var/www/crondns/data/cron.log 2>&1
