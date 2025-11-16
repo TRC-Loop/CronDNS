@@ -219,6 +219,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
       <option value="strato">Strato</option>
       <option value="namecheap">Namecheap</option>
       <option value="cloudflare">Cloudflare</option>
+      <option value="mailinabox">Mailinabox</option>
     </select>
 
     <div id="providerFields"></div>
@@ -348,6 +349,12 @@ document.addEventListener('DOMContentLoaded', () => {
     cloudflare: [
       { label: 'API Token', id: 'cfApiToken', type: 'text' },
       { label: 'Zone ID', id: 'cfZoneId', type: 'text' }
+    ],
+    mailinabox: [
+      { label: 'Host (box.example.com)', id: 'mabHost', type: 'text' },
+      { label: 'Email (admin user)', id: 'mabEmail', type: 'text' },
+      { label: 'API Key', id: 'mabApiKey', type: 'password' },
+      { label: 'Force Update (0 or 1)', id: 'mabForce', type: 'text' }
     ]
   };
 

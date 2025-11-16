@@ -7,6 +7,7 @@ require_once __DIR__ . '/dyn_dns/BaseProvider.php';
 require_once __DIR__ . '/dyn_dns/StratoProvider.php';
 require_once __DIR__ . '/dyn_dns/NamecheapProvider.php';
 require_once __DIR__ . '/dyn_dns/CloudflareProvider.php';
+require_once __DIR__ . '/dyn_dns/MailinaboxProvider.php';
 
 $domainManager = new PersistentEntityManager(Domain::class, $logger, DB, 'domains');
 $domains = $domainManager->list([], ['domain' => 'ASC']);
@@ -33,6 +34,7 @@ foreach ($domains as $d) {
         'strato'     => StratoProvider::class,
         'namecheap'  => NamecheapProvider::class,
         'cloudflare' => CloudflareProvider::class,
+        'mailinabox' => MailinaboxProvider::class,
         default      => null,
     };
 
