@@ -219,6 +219,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
       <option value="strato">Strato</option>
       <option value="namecheap">Namecheap</option>
       <option value="cloudflare">Cloudflare</option>
+      <option value="hetzner">Hetzner</option>
     </select>
 
     <div id="providerFields"></div>
