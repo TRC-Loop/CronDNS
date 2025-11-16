@@ -67,15 +67,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+
+
   function isOutdated(current, latest) {
-    const parse = v => v
-      .split(/[^0-9a-z]+/i)
-      .filter(x => x.length > 0)
-      .map(seg => {
-        const m = seg.match(/^(\d+)([a-z]*)$/i);
-        if (!m) return { num: 0, suf: seg };
-        return { num: parseInt(m[1], 10), suf: m[2] || '' };
-      });
+    const parseSeg = seg => {
+      const m = seg.match(/^(\d+)([a-z]*)$/i);
+      if (!m) return { num: 0, suf: seg };
+      return { num: parseInt(m[1], 10), suf: m[2] };
+    };
+
+    const parse = v => v.split(".").filter(Boolean).map(parseSeg);
 
     const a = parse(current);
     const b = parse(latest);
@@ -83,19 +84,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const max = Math.max(a.length, b.length);
 
     for (let i = 0; i < max; i++) {
-      const x = a[i] || { num: 0, suf: '' };
-      const y = b[i] || { num: 0, suf: '' };
+      const x = a[i] || { num: 0, suf: "" };
+      const y = b[i] || { num: 0, suf: "" };
 
       if (x.num !== y.num) return x.num < y.num;
 
+      const hasMore = (i + 1 < max);
+
       if (x.suf !== y.suf) {
-        if (x.suf === '') return true;
-        if (y.suf === '') return false;
+        if (hasMore) continue;
+        if (!x.suf && y.suf) return true;
+        if (x.suf && !y.suf) return false;
         return x.suf < y.suf;
       }
     }
+
     return false;
   }
+
 
   function showUpdateNotice(latest) {
     const dismissed = sessionStorage.getItem('dismissedVersion');
@@ -136,19 +142,18 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => t.remove(), 3000);
   }
 
-  // Auto check on load
   checkForUpdates();
 
   // Manual recheck
   if (checkButton) {
     checkButton.addEventListener('click', () => {
-      sessionStorage.removeItem('dismissedVersion'); // clear before recheck
+      sessionStorage.removeItem('dismissedVersion');
       checkForUpdates(true);
     });
   }
 });
 
-  </script>
+</script>
 
 </div>
 {% endblock %}
