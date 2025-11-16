@@ -4,8 +4,8 @@ ini_set('display_errors', 1);
 session_start();
 
 if (!isset($_SESSION['user']) || empty($_SESSION['user'])) {
-    header('Location: /');
-    exit;
+  header('Location: /');
+  exit;
 }
 ?>
 {% extends 'templates/base.j2' %}
@@ -38,7 +38,7 @@ if (!isset($_SESSION['user']) || empty($_SESSION['user'])) {
     {% block main %}{% endblock %}
   </div>
 
-<script>
+  <script>
 document.addEventListener('DOMContentLoaded', () => {
   const repo = 'TRC-Loop/CronDNS';
   const currentVersion = '{{ cfg.version }}';
@@ -68,8 +68,33 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function isOutdated(current, latest) {
-    const normalize = v => v.split(/[^0-9a-z]+/i).map(x => x.padStart(4, '0')).join('');
-    return normalize(current) < normalize(latest);
+    const parse = v => v
+      .split(/[^0-9a-z]+/i)
+      .filter(x => x.length > 0)
+      .map(seg => {
+        const m = seg.match(/^(\d+)([a-z]*)$/i);
+        if (!m) return { num: 0, suf: seg };
+        return { num: parseInt(m[1], 10), suf: m[2] || '' };
+      });
+
+    const a = parse(current);
+    const b = parse(latest);
+
+    const max = Math.max(a.length, b.length);
+
+    for (let i = 0; i < max; i++) {
+      const x = a[i] || { num: 0, suf: '' };
+      const y = b[i] || { num: 0, suf: '' };
+
+      if (x.num !== y.num) return x.num < y.num;
+
+      if (x.suf !== y.suf) {
+        if (x.suf === '') return true;
+        if (y.suf === '') return false;
+        return x.suf < y.suf;
+      }
+    }
+    return false;
   }
 
   function showUpdateNotice(latest) {
@@ -80,17 +105,17 @@ document.addEventListener('DOMContentLoaded', () => {
     notice.className = 'app-notice';
     notice.dataset.latest = latest;
     notice.innerHTML = `
-      <div class="notice-text">
-        <i class="ti ti-alert-triangle"></i>
-        <strong>Update available:</strong>
-        You are using version <code>${currentVersion}</code>.
-        Latest is <code>${latest}</code>.
-      </div>
-      <div class="notice-actions">
-        <a href="https://github.com/${repo}/releases/latest" target="_blank">Update Now</a>
-        <button class="btn-secondary dismiss-notice">Dismiss</button>
-      </div>
-    `;
+<div class="notice-text">
+  <i class="ti ti-alert-triangle"></i>
+  <strong>Update available:</strong>
+  You are using version <code>${currentVersion}</code>.
+  Latest is <code>${latest}</code>.
+</div>
+<div class="notice-actions">
+  <a href="https://github.com/${repo}/releases/latest" target="_blank">Update Now</a>
+  <button class="btn-secondary dismiss-notice">Dismiss</button>
+</div>
+`;
 
     const content = document.querySelector('.content');
     content?.prepend(notice);
@@ -123,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-</script>
+  </script>
 
 </div>
 {% endblock %}
