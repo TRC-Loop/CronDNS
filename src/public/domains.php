@@ -348,6 +348,10 @@ document.addEventListener('DOMContentLoaded', () => {
     cloudflare: [
       { label: 'API Token', id: 'cfApiToken', type: 'text' },
       { label: 'Zone ID', id: 'cfZoneId', type: 'text' }
+    ],
+    hetzner: [
+      { label: 'API Token', id: 'hetznerApiToken', type: 'text' },
+      { label: 'Zone ID', id: 'hetznerZoneId', type: 'text' }
     ]
   };
 
