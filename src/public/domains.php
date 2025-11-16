@@ -220,6 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
       <option value="namecheap">Namecheap</option>
       <option value="cloudflare">Cloudflare</option>
       <option value="mailinabox">Mailinabox</option>
+      <option value="hetzner">Hetzner</option>
     </select>
 
     <div id="providerFields"></div>
@@ -355,6 +356,10 @@ document.addEventListener('DOMContentLoaded', () => {
       { label: 'Email (admin user)', id: 'mabEmail', type: 'text' },
       { label: 'API Key', id: 'mabApiKey', type: 'password' },
       { label: 'Force Update (0 or 1)', id: 'mabForce', type: 'text' }
+    ],
+    hetzner: [
+      { label: 'API Token', id: 'hetznerApiToken', type: 'text' },
+      { label: 'Zone ID', id: 'hetznerZoneId', type: 'text' }
     ]
   };
 
