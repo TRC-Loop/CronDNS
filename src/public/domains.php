@@ -219,6 +219,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
       <option value="strato">Strato</option>
       <option value="namecheap">Namecheap</option>
       <option value="cloudflare">Cloudflare</option>
+      <option value="hetzner">Hetzner</option>
     </select>
 
     <div id="providerFields"></div>
@@ -348,6 +349,10 @@ document.addEventListener('DOMContentLoaded', () => {
     cloudflare: [
       { label: 'API Token', id: 'cfApiToken', type: 'text' },
       { label: 'Zone ID', id: 'cfZoneId', type: 'text' }
+    ],
+    hetzner: [
+      { label: 'API Token', id: 'hetznerApiToken', type: 'text' },
+      { label: 'Zone ID', id: 'hetznerZoneId', type: 'text' }
     ]
   };
 
