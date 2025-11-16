@@ -7,129 +7,139 @@ $domainManager = new PersistentEntityManager(Domain::class, $logger, DB, 'domain
 $domains = $domainManager->list([], ['domain' => 'ASC']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST'
-    && strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false) {
+  && strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false) {
 
-    header('Content-Type: application/json');
-    $input = json_decode(file_get_contents('php://input'), true);
-    $action = $input['action'] ?? 'create';
+  header('Content-Type: application/json');
+  $input = json_decode(file_get_contents('php://input'), true);
+  $action = $input['action'] ?? 'create';
 
-    try {
-        switch ($action) {
+  try {
+    switch ($action) {
 
-          case 'updateDomain':
-              $domainName = trim($input['domain'] ?? '');
-              $credentials = $input['credentials'] ?? [];
+      case 'updateDomain':
+        $domainName = trim($input['domain'] ?? '');
+        $credentials = $input['credentials'] ?? [];
 
-              if (!$domainName) {
-                  echo json_encode(['success' => false, 'error' => 'Missing domain parameter.']);
-                  exit;
-              }
-
-              $existing = $domainManager->find(['domain' => $domainName]);
-              if (!$existing) {
-                  echo json_encode(['success' => false, 'error' => 'Domain not found.']);
-                  exit;
-              }
-
-              $existing->credentials = $credentials;
-              $domainManager->save($existing);
-
-              echo json_encode([
-                  'success' => true,
-                  'domain' => [
-                      'domain' => $existing->domain,
-                      'provider' => $existing->provider,
-                      'ip' => gethostbyname($existing->domain),
-                      'updated' => $existing->Updated
-                  ]
-              ]);
-              exit;
-
-          case 'deleteDomain':
-              $domainName = trim($input['domain'] ?? '');
-              if (!$domainName) {
-                  echo json_encode(['success' => false, 'error' => 'Missing domain parameter.']);
-                  exit;
-              }
-
-              $existing = $domainManager->find(['domain' => $domainName]);
-              if (!$existing) {
-                  echo json_encode(['success' => false, 'error' => 'Domain not found.']);
-                  exit;
-              }
-
-              if ($domainManager->delete($existing)) {
-                  echo json_encode(['success' => true]);
-              } else {
-                  echo json_encode(['success' => false, 'error' => 'Failed to delete domain.']);
-              }
-              exit;
-            case 'createDomain':
-                $domain = trim($input['domain'] ?? '');
-                $provider = trim($input['provider'] ?? '');
-                $credentials = $input['credentials'] ?? [];
-
-                if (!$domain || !$provider) {
-                    echo json_encode(['success' => false, 'error' => 'Domain and provider are required.']);
-                    exit;
-                }
-
-                $existing = $domainManager->find(['domain' => $domain]);
-                if ($existing) {
-                    echo json_encode(['success' => false, 'error' => "Domain $domain already exists"]);
-                    exit;
-                }
-
-                $d = new Domain();
-                $d->domain = $domain;
-                $d->provider = $provider;
-                $d->credentials = $credentials;
-                $domainManager->save($d);
-
-                echo json_encode([
-                    'success' => true,
-                    'domain' => [
-                        'domain' => $d->domain,
-                        'provider' => $d->provider,
-                        'ip' => gethostbyname($d->domain)
-                    ]
-                ]);
-                exit;
-
-            case 'getDomainDetails':
-                $domainName = trim($input['domain'] ?? '');
-                if (!$domainName) {
-                    echo json_encode(['success' => false, 'error' => 'Missing domain parameter.']);
-                    exit;
-                }
-
-                $result = $domainManager->find(['domain' => $domainName]);
-                if (!$result) {
-                    echo json_encode(['success' => false, 'error' => 'Domain not found.']);
-                    exit;
-                }
-
-                echo json_encode([
-                    'success' => true,
-                    'domain' => [
-                        'domain' => $result->domain,
-                        'provider' => $result->provider,
-                        'credentials' => $result->credentials,
-                        'ip' => gethostbyname($result->domain),
-                        'created' => $result->Created,
-                        'updated' => $result->Updated
-                    ]
-                ]);
-                exit;
-
-            default:
-                echo json_encode(['success' => false, 'error' => 'Invalid action.']);
-                exit;
+        if (!$domainName) {
+          echo json_encode(['success' => false, 'error' => 'Missing domain parameter.']);
+          exit;
         }
-    } catch (Exception $e) {
-        echo json_encode(['success' => false, 'error' => 'Server error: ' . $e->getMessage()]);
+
+        $existing = $domainManager->find(['domain' => $domainName]);
+        if (!$existing) {
+          echo json_encode(['success' => false, 'error' => 'Domain not found.']);
+          exit;
+        }
+
+        $existing->credentials = $credentials;
+        $domainManager->save($existing);
+
+        echo json_encode([
+          'success' => true,
+          'domain' => [
+            'domain' => $existing->domain,
+            'provider' => $existing->provider,
+            'ip' => gethostbyname($existing->domain),
+            'updated' => $existing->Updated
+          ]
+        ]);
+        exit;
+
+      case 'deleteDomain':
+        $domainName = trim($input['domain'] ?? '');
+        if (!$domainName) {
+          echo json_encode(['success' => false, 'error' => 'Missing domain parameter.']);
+          exit;
+        }
+
+        $existing = $domainManager->find(['domain' => $domainName]);
+        if (!$existing) {
+          echo json_encode(['success' => false, 'error' => 'Domain not found.']);
+          exit;
+        }
+
+        if ($domainManager->delete($existing)) {
+          echo json_encode(['success' => true]);
+        } else {
+          echo json_encode(['success' => false, 'error' => 'Failed to delete domain.']);
+        }
+        exit;
+      case 'createDomain':
+        $domain = trim($input['domain'] ?? '');
+        $provider = trim($input['provider'] ?? '');
+        $credentials = $input['credentials'] ?? [];
+
+        if (!$domain || !$provider) {
+          echo json_encode(['success' => false, 'error' => 'Domain and provider are required.']);
+          exit;
+        }
+
+        $existing = $domainManager->find(['domain' => $domain]);
+        if ($existing) {
+          echo json_encode(['success' => false, 'error' => "Domain $domain already exists"]);
+          exit;
+        }
+
+        $d = new Domain();
+        $d->domain = $domain;
+        $d->provider = $provider;
+        $d->credentials = $credentials;
+        $domainManager->save($d);
+
+        echo json_encode([
+          'success' => true,
+          'domain' => [
+            'domain' => $d->domain,
+            'provider' => $d->provider,
+            'ip' => gethostbyname($d->domain)
+          ]
+        ]);
+        exit;
+
+      case 'runDynDnsUpdate':
+        ob_start();
+        $result = include __DIR__ . '/../lib/dyn_dns_update.php';
+        $output = ob_get_clean();
+        echo json_encode([
+          'success' => true,
+          'output'  => $output ?: $result
+        ]);
+        exit;
+
+      case 'getDomainDetails':
+        $domainName = trim($input['domain'] ?? '');
+        if (!$domainName) {
+          echo json_encode(['success' => false, 'error' => 'Missing domain parameter.']);
+          exit;
+        }
+
+        $result = $domainManager->find(['domain' => $domainName]);
+        if (!$result) {
+          echo json_encode(['success' => false, 'error' => 'Domain not found.']);
+          exit;
+        }
+
+        echo json_encode([
+          'success' => true,
+          'domain' => [
+            'domain' => $result->domain,
+            'provider' => $result->provider,
+            'credentials' => $result->credentials,
+            'ip' => gethostbyname($result->domain),
+            'created' => $result->Created,
+            'updated' => $result->Updated
+          ]
+        ]);
+        exit;
+
+      default:
+        echo json_encode(['success' => false, 'error' => 'Invalid action.']);
         exit;
     }
+  } catch (Exception $e) {
+    echo json_encode(['success' => false, 'error' => 'Server error: ' . $e->getMessage()]);
+    exit;
+  }
 }
 ?>
 {% extends 'templates/dashboard.j2' %}
@@ -150,6 +160,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
     <button id="createDomainBtn" class="create-btn">
       <i class="ti ti-plus"></i> Add Domain
     </button>
+    <button id="runDynDnsBtn" class="secondary">
+      <i class="ti ti-refresh"></i> Run DynDNS Update
+    </button>
   </div>
 
   <table id="domainTable">
@@ -166,24 +179,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
     </thead>
     <tbody>
       <?php if (!empty($domains)): ?>
-        <?php foreach ($domains as $d): ?>
-          <tr>
-            <td><?= htmlspecialchars($d->domain) ?></td>
-            <td><?= htmlspecialchars($d->provider) ?></td>
-            <?php
-            $ip = gethostbyname($d->domain);
-            $resolved = $ip === $d->domain ? null : $ip;
-            ?>
-            <td title="<?= $resolved ? '' : 'Domain could not be resolved' ?>">
-                <?= $resolved ?? 'N/A' ?>
-            </td>
-            <td class="actions">
-              <button class="small secondary"><i class="ti ti-eye"></i> Show</button>
-              <button class="small"><i class="ti ti-edit"></i> Edit</button>
-              <button class="small danger"><i class="ti ti-trash"></i> Delete</button>
-            </td>
-          </tr>
-        <?php endforeach; ?>
+      <?php foreach ($domains as $d): ?>
+      <tr>
+        <td><?= htmlspecialchars($d->domain) ?></td>
+        <td><?= htmlspecialchars($d->provider) ?></td>
+        <?php
+        $ip = gethostbyname($d->domain);
+        $resolved = $ip === $d->domain ? null : $ip;
+        ?>
+        <td title="<?= $resolved ? '' : 'Domain could not be resolved' ?>">
+          <?= $resolved ?? 'N/A' ?>
+        </td>
+        <td class="actions">
+          <button class="small secondary"><i class="ti ti-eye"></i> Show</button>
+          <button class="small"><i class="ti ti-edit"></i> Edit</button>
+          <button class="small danger"><i class="ti ti-trash"></i> Delete</button>
+        </td>
+      </tr>
+      <?php endforeach; ?>
       <?php else: ?>
 
       <tr data-placeholder>
@@ -267,6 +280,31 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('searchInput');
   const sortIcon = document.querySelector('.sort-icon');
   let ascending = true;
+
+  const runDynDnsBtn = document.getElementById('runDynDnsBtn');
+
+  runDynDnsBtn.addEventListener('click', () => {
+    runDynDnsBtn.disabled = true;
+
+    fetch(window.location.href, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'runDynDnsUpdate' })
+    })
+      .then(res => res.json())
+      .then(data => {
+        runDynDnsBtn.disabled = false;
+        if (!data.success) {
+          alert('DynDNS update failed.');
+          return;
+        }
+        alert('DynDNS update executed.');
+      })
+      .catch(() => {
+        runDynDnsBtn.disabled = false;
+        alert('Unexpected error.');
+      });
+  });
 
   // Sorting
   document.querySelector('th[data-sort="domain"]').addEventListener('click', () => {
@@ -361,21 +399,21 @@ document.addEventListener('DOMContentLoaded', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'createDomain', domain, provider, credentials })
     })
-    .then(res => res.json())
-    .then(data => {
-      if(data.success){
-        modal.style.display = 'none';
-        appendDomainRow(data.domain);
-      } else {
-        errorText.textContent = data.error;
+      .then(res => res.json())
+      .then(data => {
+        if(data.success){
+          modal.style.display = 'none';
+          appendDomainRow(data.domain);
+        } else {
+          errorText.textContent = data.error;
+          errorText.style.display = 'block';
+        }
+      })
+      .catch(err => {
+        errorText.textContent = 'Unexpected error.';
         errorText.style.display = 'block';
-      }
-    })
-    .catch(err => {
-      errorText.textContent = 'Unexpected error.';
-      errorText.style.display = 'block';
-      console.error(err);
-    });
+        console.error(err);
+      });
   });
 
 
@@ -400,194 +438,194 @@ document.addEventListener('DOMContentLoaded', () => {
 </td>`;
     tbody.appendChild(row);
   }
-  
-// Handle "Show" button click
-table.addEventListener('click', e => {
-  if (!e.target.closest('button')) return;
-  const btn = e.target.closest('button');
-  if (!btn.textContent.includes('Show')) return;
 
-  const domain = btn.closest('tr').children[0].textContent.trim();
-  fetch(window.location.href, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'getDomainDetails', domain })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (!data.success) return alert(data.error || 'Failed to load domain info.');
+  // Handle "Show" button click
+  table.addEventListener('click', e => {
+    if (!e.target.closest('button')) return;
+    const btn = e.target.closest('button');
+    if (!btn.textContent.includes('Show')) return;
 
-    const d = data.domain;
-    const creds = Object.entries(d.credentials || {})
-      .map(([k,v]) => `
-        <div class="cred-row">
-          <dt>${k}</dt>
-          <dd>
-            <input type="password" value="${v}" readonly>
-            <i class="ti ti-eye toggle-cred"></i>
-          </dd>
-        </div>
-      `).join('');
+    const domain = btn.closest('tr').children[0].textContent.trim();
+    fetch(window.location.href, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'getDomainDetails', domain })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.success) return alert(data.error || 'Failed to load domain info.');
 
-    document.getElementById('showDomainDetails').innerHTML = `
-      <dl class="app-info-dl">
-        <dt>Domain</dt><dd>${d.domain}</dd>
-        <dt>Provider</dt><dd>${d.provider}</dd>
-        <dt>IP</dt><dd>${d.ip}</dd>
-        <dt>Created</dt><dd>${d.created}</dd>
-        <dt>Updated</dt><dd>${d.updated}</dd>
-      </dl>
-      <h4>Credentials</h4>
-      <div class="credentials">${creds || '<em>No credentials stored.</em>'}</div>
-    `;
+        const d = data.domain;
+        const creds = Object.entries(d.credentials || {})
+        .map(([k,v]) => `
+<div class="cred-row">
+<dt>${k}</dt>
+<dd>
+<input type="password" value="${v}" readonly>
+<i class="ti ti-eye toggle-cred"></i>
+</dd>
+</div>
+`).join('');
 
-    document.getElementById('showDomainModal').style.display = 'flex';
-  })
-  .catch(console.error);
-});
+        document.getElementById('showDomainDetails').innerHTML = `
+<dl class="app-info-dl">
+  <dt>Domain</dt><dd>${d.domain}</dd>
+  <dt>Provider</dt><dd>${d.provider}</dd>
+  <dt>IP</dt><dd>${d.ip}</dd>
+  <dt>Created</dt><dd>${d.created}</dd>
+  <dt>Updated</dt><dd>${d.updated}</dd>
+</dl>
+<h4>Credentials</h4>
+<div class="credentials">${creds || '<em>No credentials stored.</em>'}</div>
+`;
 
-document.getElementById('closeShowDomain').addEventListener('click', () => {
-  document.getElementById('showDomainModal').style.display = 'none';
-});
+        document.getElementById('showDomainModal').style.display = 'flex';
+      })
+      .catch(console.error);
+  });
 
-// Toggle credential visibility
-document.addEventListener('click', e => {
-  if (e.target.classList.contains('toggle-cred')) {
-    const input = e.target.previousElementSibling;
-    input.type = input.type === 'password' ? 'text' : 'password';
-    e.target.classList.toggle('ti-eye');
-    e.target.classList.toggle('ti-eye-off');
-  }
-});
-table.addEventListener('click', e => {
-  if (!e.target.closest('button')) return;
-  const btn = e.target.closest('button');
-  if (!btn.textContent.includes('Edit')) return;
+  document.getElementById('closeShowDomain').addEventListener('click', () => {
+    document.getElementById('showDomainModal').style.display = 'none';
+  });
 
-  const domain = btn.closest('tr').children[0].textContent.trim();
+  // Toggle credential visibility
+  document.addEventListener('click', e => {
+    if (e.target.classList.contains('toggle-cred')) {
+      const input = e.target.previousElementSibling;
+      input.type = input.type === 'password' ? 'text' : 'password';
+      e.target.classList.toggle('ti-eye');
+      e.target.classList.toggle('ti-eye-off');
+    }
+  });
+  table.addEventListener('click', e => {
+    if (!e.target.closest('button')) return;
+    const btn = e.target.closest('button');
+    if (!btn.textContent.includes('Edit')) return;
 
-  fetch(window.location.href, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'getDomainDetails', domain })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (!data.success) return alert(data.error || 'Failed to load domain info.');
+    const domain = btn.closest('tr').children[0].textContent.trim();
 
-    const d = data.domain;
-    document.getElementById('editDomainName').value = d.domain;
-    document.getElementById('editProvider').value = d.provider;
+    fetch(window.location.href, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'getDomainDetails', domain })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.success) return alert(data.error || 'Failed to load domain info.');
 
-    const container = document.getElementById('editCredentialsContainer');
-    container.innerHTML = '';
+        const d = data.domain;
+        document.getElementById('editDomainName').value = d.domain;
+        document.getElementById('editProvider').value = d.provider;
 
-    Object.entries(d.credentials || {}).forEach(([key, val]) => {
-      const label = document.createElement('label');
-      label.textContent = key;
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.value = val;
-      input.dataset.key = key;
-      container.appendChild(label);
-      container.appendChild(input);
+        const container = document.getElementById('editCredentialsContainer');
+        container.innerHTML = '';
+
+        Object.entries(d.credentials || {}).forEach(([key, val]) => {
+          const label = document.createElement('label');
+          label.textContent = key;
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.value = val;
+          input.dataset.key = key;
+          container.appendChild(label);
+          container.appendChild(input);
+        });
+
+        document.getElementById('editDomainError').style.display = 'none';
+        document.getElementById('editDomainModal').style.display = 'flex';
+      })
+      .catch(console.error);
+  });
+
+  document.getElementById('cancelEditDomain').addEventListener('click', () => {
+    document.getElementById('editDomainModal').style.display = 'none';
+  });
+
+  document.getElementById('saveEditDomain').addEventListener('click', () => {
+    const domain = document.getElementById('editDomainName').value.trim();
+    const credentials = {};
+    document.querySelectorAll('#editCredentialsContainer input').forEach(inp => {
+      credentials[inp.dataset.key] = inp.value.trim();
     });
 
-    document.getElementById('editDomainError').style.display = 'none';
-    document.getElementById('editDomainModal').style.display = 'flex';
-  })
-  .catch(console.error);
-});
+    fetch(window.location.href, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'updateDomain', domain, credentials })
+    })
+      .then(res => res.json())
+      .then(data => {
+        const err = document.getElementById('editDomainError');
+        if (!data.success) {
+          err.textContent = data.error;
+          err.style.display = 'block';
+          return;
+        }
 
-document.getElementById('cancelEditDomain').addEventListener('click', () => {
-  document.getElementById('editDomainModal').style.display = 'none';
-});
+        document.getElementById('editDomainModal').style.display = 'none';
+        err.style.display = 'none';
 
-document.getElementById('saveEditDomain').addEventListener('click', () => {
-  const domain = document.getElementById('editDomainName').value.trim();
-  const credentials = {};
-  document.querySelectorAll('#editCredentialsContainer input').forEach(inp => {
-    credentials[inp.dataset.key] = inp.value.trim();
+        // Optional: update "Updated" info visually or re-fetch row
+        alert('Domain updated successfully!');
+      })
+      .catch(console.error);
+  });
+  const deleteModal = document.getElementById('deleteDomainModal');
+  const deleteDomainNameEl = document.getElementById('deleteDomainName');
+  const deleteError = document.getElementById('deleteDomainError');
+  let domainToDelete = null;
+
+  table.addEventListener('click', e => {
+    const btn = e.target.closest('button');
+    if (!btn || !btn.textContent.includes('Delete')) return;
+
+    const row = btn.closest('tr');
+    const domain = row.children[0].textContent.trim();
+    domainToDelete = row;
+    deleteDomainNameEl.textContent = domain;
+    deleteError.style.display = 'none';
+    deleteModal.style.display = 'flex';
   });
 
-  fetch(window.location.href, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'updateDomain', domain, credentials })
-  })
-  .then(res => res.json())
-  .then(data => {
-    const err = document.getElementById('editDomainError');
-    if (!data.success) {
-      err.textContent = data.error;
-      err.style.display = 'block';
-      return;
-    }
-
-    document.getElementById('editDomainModal').style.display = 'none';
-    err.style.display = 'none';
-
-    // Optional: update "Updated" info visually or re-fetch row
-    alert('Domain updated successfully!');
-  })
-  .catch(console.error);
-});
-const deleteModal = document.getElementById('deleteDomainModal');
-const deleteDomainNameEl = document.getElementById('deleteDomainName');
-const deleteError = document.getElementById('deleteDomainError');
-let domainToDelete = null;
-
-table.addEventListener('click', e => {
-  const btn = e.target.closest('button');
-  if (!btn || !btn.textContent.includes('Delete')) return;
-
-  const row = btn.closest('tr');
-  const domain = row.children[0].textContent.trim();
-  domainToDelete = row;
-  deleteDomainNameEl.textContent = domain;
-  deleteError.style.display = 'none';
-  deleteModal.style.display = 'flex';
-});
-
-document.getElementById('cancelDeleteDomain').addEventListener('click', () => {
-  deleteModal.style.display = 'none';
-  domainToDelete = null;
-});
-
-document.getElementById('confirmDeleteDomain').addEventListener('click', () => {
-  if (!domainToDelete) return;
-
-  const domain = deleteDomainNameEl.textContent.trim();
-  fetch(window.location.href, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'deleteDomain', domain })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      domainToDelete.remove();
-      deleteModal.style.display = 'none';
-
-      // Show "no domains" row if table empty
-      const tbody = table.querySelector('tbody');
-      if (!tbody.querySelector('tr')) {
-        const emptyRow = document.createElement('tr');
-        emptyRow.dataset.placeholder = true;
-        emptyRow.innerHTML = `<td colspan="4" style="text-align:center;">No domains added yet.</td>`;
-        tbody.appendChild(emptyRow);
-      }
-    } else {
-      deleteError.textContent = data.error || 'Delete failed.';
-      deleteError.style.display = 'block';
-    }
-  })
-  .catch(err => {
-    console.error(err);
-    deleteError.textContent = 'Unexpected error.';
-    deleteError.style.display = 'block';
+  document.getElementById('cancelDeleteDomain').addEventListener('click', () => {
+    deleteModal.style.display = 'none';
+    domainToDelete = null;
   });
-});
+
+  document.getElementById('confirmDeleteDomain').addEventListener('click', () => {
+    if (!domainToDelete) return;
+
+    const domain = deleteDomainNameEl.textContent.trim();
+    fetch(window.location.href, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'deleteDomain', domain })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          domainToDelete.remove();
+          deleteModal.style.display = 'none';
+
+          // Show "no domains" row if table empty
+          const tbody = table.querySelector('tbody');
+          if (!tbody.querySelector('tr')) {
+            const emptyRow = document.createElement('tr');
+            emptyRow.dataset.placeholder = true;
+            emptyRow.innerHTML = `<td colspan="4" style="text-align:center;">No domains added yet.</td>`;
+            tbody.appendChild(emptyRow);
+          }
+        } else {
+          deleteError.textContent = data.error || 'Delete failed.';
+          deleteError.style.display = 'block';
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        deleteError.textContent = 'Unexpected error.';
+        deleteError.style.display = 'block';
+      });
+  });
 });
 
 </script>
