@@ -1,6 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 session_start();
 
 if (!isset($_SESSION['user']) || empty($_SESSION['user'])) {
@@ -100,16 +98,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     return false;
-  }
+    }
+
 
 
   function showUpdateNotice(latest) {
     const dismissed = sessionStorage.getItem('dismissedVersion');
     if (dismissed === latest) return;
 
-    const notice = document.createElement('div');
+    // Prevent duplicates
+    let notice = document.querySelector('.app-notice');
+    if (notice) {
+      // Already exists → just update its dataset if needed
+      notice.dataset.latest = latest;
+      return;
+    }
+
+    notice = document.createElement('div');
     notice.className = 'app-notice';
     notice.dataset.latest = latest;
+
     notice.innerHTML = `
 <div class="notice-text">
   <i class="ti ti-alert-triangle"></i>
@@ -132,6 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+
   function showToast(text) {
     const t = document.createElement('div');
     t.className = 'toast-message';
@@ -153,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-</script>
+  </script>
 
 </div>
 {% endblock %}
