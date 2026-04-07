@@ -3,6 +3,17 @@ require_once __DIR__ . "/../lib/utils.php";
 require_once __DIR__ . "/../conf/config.php";
 require_once __DIR__ . "/../lib/domain.php";
 
+function resolveDisplayIp(string $domain, ?string $lastIp): ?string {
+    if ($lastIp !== null && $lastIp !== '') {
+        return $lastIp;
+    }
+    if (str_starts_with($domain, '*.')) {
+        return null; // wildcard with no stored IP yet
+    }
+    $ip = gethostbyname($domain);
+    return ($ip === $domain) ? null : $ip;
+}
+
 $domainManager = new PersistentEntityManager(Domain::class, $logger, DB, 'domains');
 $domains = $domainManager->list([], ['domain' => 'ASC']);
 
@@ -34,12 +45,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
         $existing->credentials = $credentials;
         $domainManager->save($existing);
 
+        $resolvedIp = resolveDisplayIp($existing->domain, $existing->last_ip ?? null);
         echo json_encode([
           'success' => true,
           'domain' => [
             'domain' => $existing->domain,
             'provider' => $existing->provider,
-            'ip' => gethostbyname($existing->domain),
+            'ip' => $resolvedIp,
             'updated' => $existing->Updated
           ]
         ]);
@@ -86,23 +98,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
         $d->credentials = $credentials;
         $domainManager->save($d);
 
+        $resolvedIp = resolveDisplayIp($d->domain, null);
         echo json_encode([
           'success' => true,
           'domain' => [
             'domain' => $d->domain,
             'provider' => $d->provider,
-            'ip' => gethostbyname($d->domain)
+            'ip' => $resolvedIp
           ]
         ]);
         exit;
 
       case 'runDynDnsUpdate':
-        ob_start();
-        $result = include __DIR__ . '/../lib/dyn_dns_update.php';
-        $output = ob_get_clean();
+        $scriptPath = realpath(__DIR__ . '/../lib/dyn_dns_update.php');
+        if (!$scriptPath) {
+          echo json_encode(['success' => false, 'output' => 'Update script not found.']);
+          exit;
+        }
+        $phpBin = PHP_BINARY ?: '/usr/local/bin/php';
+        exec(escapeshellcmd($phpBin) . ' ' . escapeshellarg($scriptPath) . ' 2>&1', $lines, $exitCode);
         echo json_encode([
-          'success' => true,
-          'output'  => $output ?: $result
+          'success' => $exitCode === 0,
+          'output'  => implode("\n", $lines)
         ]);
         exit;
 
@@ -119,13 +136,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
           exit;
         }
 
+        $resolvedIp = resolveDisplayIp($result->domain, $result->last_ip ?? null);
         echo json_encode([
           'success' => true,
           'domain' => [
             'domain' => $result->domain,
             'provider' => $result->provider,
             'credentials' => $result->credentials,
-            'ip' => gethostbyname($result->domain),
+            'ip' => $resolvedIp ?? 'N/A',
             'created' => $result->Created,
             'updated' => $result->Updated
           ]
@@ -183,12 +201,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
       <tr>
         <td><?= htmlspecialchars($d->domain) ?></td>
         <td><?= htmlspecialchars($d->provider) ?></td>
-        <?php
-        $ip = gethostbyname($d->domain);
-        $resolved = $ip === $d->domain ? null : $ip;
-        ?>
-        <td title="<?= $resolved ? '' : 'Domain could not be resolved' ?>">
-          <?= $resolved ?? 'N/A' ?>
+        <?php $resolved = resolveDisplayIp($d->domain, $d->last_ip ?? null); ?>
+        <td title="<?= $resolved ? '' : 'No IP stored yet — run DynDNS update' ?>">
+          <?= htmlspecialchars($resolved ?? 'N/A') ?>
         </td>
         <td class="actions">
           <button class="small secondary"><i class="ti ti-eye"></i> Show</button>
@@ -276,6 +291,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
   </div>
 </div>
 
+<div id="dynDnsProgressModal" class="modal">
+  <div class="modal-content large">
+    <h3><i class="ti ti-refresh"></i> DynDNS Update</h3>
+    <div id="dynDnsRunning" style="display:flex;align-items:center;gap:1rem;padding:0.5rem 0;">
+      <div class="spinner"></div>
+      <span>Running update, please wait...</span>
+    </div>
+    <div id="dynDnsResult" style="display:none;">
+      <div id="dynDnsStatusBadge" style="margin-bottom:0.75rem;font-weight:600;"></div>
+      <pre id="dynDnsLog" class="log-output"></pre>
+    </div>
+    <div class="modal-actions" id="dynDnsModalActions" style="display:none;">
+      <button id="closeDynDnsModal">Close</button>
+    </div>
+  </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const table = document.getElementById('domainTable');
@@ -284,8 +316,24 @@ document.addEventListener('DOMContentLoaded', () => {
   let ascending = true;
 
   const runDynDnsBtn = document.getElementById('runDynDnsBtn');
+  const progressModal = document.getElementById('dynDnsProgressModal');
+  const dynDnsRunning = document.getElementById('dynDnsRunning');
+  const dynDnsResult = document.getElementById('dynDnsResult');
+  const dynDnsLog = document.getElementById('dynDnsLog');
+  const dynDnsStatusBadge = document.getElementById('dynDnsStatusBadge');
+  const dynDnsModalActions = document.getElementById('dynDnsModalActions');
+
+  document.getElementById('closeDynDnsModal').addEventListener('click', () => {
+    progressModal.style.display = 'none';
+  });
 
   runDynDnsBtn.addEventListener('click', () => {
+    // Reset and open modal
+    dynDnsRunning.style.display = 'flex';
+    dynDnsResult.style.display = 'none';
+    dynDnsModalActions.style.display = 'none';
+    dynDnsLog.textContent = '';
+    progressModal.style.display = 'flex';
     runDynDnsBtn.disabled = true;
 
     fetch(window.location.href, {
@@ -296,15 +344,33 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(res => res.json())
       .then(data => {
         runDynDnsBtn.disabled = false;
-        if (!data.success) {
-          alert('DynDNS update failed.');
-          return;
+        dynDnsRunning.style.display = 'none';
+        dynDnsResult.style.display = 'block';
+        dynDnsModalActions.style.display = 'flex';
+
+        if (data.success) {
+          dynDnsStatusBadge.innerHTML = '<span style="color:var(--success)"><i class="ti ti-circle-check"></i> Update completed successfully</span>';
+        } else {
+          dynDnsStatusBadge.innerHTML = '<span style="color:var(--error)"><i class="ti ti-alert-circle"></i> Update finished with errors</span>';
         }
-        alert('DynDNS update executed.');
+
+        // Color-code log lines
+        const lines = (data.output || '').split('\n');
+        dynDnsLog.innerHTML = lines.map(line => {
+          const escaped = line.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+          if (/\[ERROR\]|\[CRITICAL\]/.test(line)) return `<span class="log-line-error">${escaped}</span>`;
+          if (/\[INFO\]/.test(line)) return `<span class="log-line-info">${escaped}</span>`;
+          if (/\[WARNING\]/.test(line)) return `<span class="log-line-warn">${escaped}</span>`;
+          return escaped;
+        }).join('\n');
       })
       .catch(() => {
         runDynDnsBtn.disabled = false;
-        alert('Unexpected error.');
+        dynDnsRunning.style.display = 'none';
+        dynDnsResult.style.display = 'block';
+        dynDnsModalActions.style.display = 'flex';
+        dynDnsStatusBadge.innerHTML = '<span style="color:var(--error)"><i class="ti ti-alert-circle"></i> Unexpected error contacting the server</span>';
+        dynDnsLog.textContent = '';
       });
   });
 

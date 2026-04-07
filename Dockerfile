@@ -36,6 +36,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends cron \
 # Enable Apache rewrite module
 RUN a2enmod rewrite
 
+# Suppress Apache ServerName warning globally
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
 # Create app directories
 RUN mkdir -p /var/www/crondns/data /var/www/crondns/lib /var/www/crondns/public /var/www/crondns/templates \
     /var/lib/php/sessions
@@ -52,12 +55,9 @@ RUN a2dissite 000-default.conf && a2ensite crondns.conf
 RUN chown -R www-data:www-data /var/www/crondns /var/lib/php/sessions \
     && chmod -R 775 /var/www/crondns
 
-# Add cron job
+# Add cron job — files in /etc/cron.d/ are auto-loaded by the cron daemon
 COPY crondns.cron /etc/cron.d/crondns
-RUN chmod 0644 /etc/cron.d/crondns && crontab /etc/cron.d/crondns
-
-# Restrict DocumentRoot
-RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/crondns/public|g' /etc/apache2/sites-available/crondns.conf
+RUN chmod 0644 /etc/cron.d/crondns
 
 # ===============================
 # PHP Custom Configuration

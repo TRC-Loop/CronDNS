@@ -22,12 +22,14 @@ if (!$currentIp) {
 
 $logger->info("Current external IP: $currentIp");
 
+$failedDomains = [];
+
 // Main update loop
 foreach ($domains as $d) {
     $logger->info("Updating {$d->domain} ({$d->provider}) ...");
 
     if ($d->last_ip === $currentIp) {
-        $logger->info("Domain {$d->domain} already has IP $currentIp → skipping");
+        $logger->info("Domain {$d->domain} already has IP $currentIp - skipping");
         continue;
     }
 
@@ -36,12 +38,13 @@ foreach ($domains as $d) {
         'namecheap'  => NamecheapProvider::class,
         'cloudflare' => CloudflareProvider::class,
         'mailinabox' => MailinaboxProvider::class,
-        'hetzner' => HetznerProvider::class,
+        'hetzner'    => HetznerProvider::class,
         default      => null,
     };
 
     if (!$providerClass) {
         $logger->error("Unknown provider {$d->provider} for domain {$d->domain}");
+        $failedDomains[] = $d->domain;
         continue;
     }
 
@@ -50,21 +53,28 @@ foreach ($domains as $d) {
     if ($provider->updateIp($currentIp)) {
         $d->last_ip = $currentIp;
         $domainManager->save($d);
-        $logger->info("Updated {$d->domain} → stored new IP $currentIp");
+        $logger->info("Updated {$d->domain} - stored new IP $currentIp");
     } else {
         $logger->error("Failed to update {$d->domain}");
+        $failedDomains[] = $d->domain;
     }
 }
 
 $logger->info('DynDNS update completed.');
 
 $lastRun = $settingsManager->find(["key" => "lastDynDnsRun"]);
-
 if (!$lastRun) {
     $lastRun = new KeyValue();
     $lastRun->key = "lastDynDnsRun";
 }
-
-$lastRun->value = date('c'); // ISO8601 timestamp
+$lastRun->value = date('c');
 $settingsManager->save($lastRun);
+
+$errorsEntry = $settingsManager->find(["key" => "lastUpdateErrors"]);
+if (!$errorsEntry) {
+    $errorsEntry = new KeyValue();
+    $errorsEntry->key = "lastUpdateErrors";
+}
+$errorsEntry->value = $failedDomains;
+$settingsManager->save($errorsEntry);
 
