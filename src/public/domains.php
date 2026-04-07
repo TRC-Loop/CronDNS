@@ -115,8 +115,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
           echo json_encode(['success' => false, 'output' => 'Update script not found.']);
           exit;
         }
-        $phpBin = PHP_BINARY ?: '/usr/local/bin/php';
-        exec(escapeshellcmd($phpBin) . ' ' . escapeshellarg($scriptPath) . ' 2>&1', $lines, $exitCode);
+        $phpBin = trim(shell_exec('which php 2>/dev/null') ?? '');
+        if (!$phpBin || !is_executable($phpBin)) {
+          foreach (['/usr/local/bin/php', '/usr/bin/php', '/usr/bin/php8', '/usr/local/bin/php8'] as $candidate) {
+            if (is_executable($candidate)) { $phpBin = $candidate; break; }
+          }
+        }
+        if (!$phpBin) {
+          echo json_encode(['success' => false, 'output' => 'PHP CLI binary not found on this system.']);
+          exit;
+        }
+        exec(escapeshellarg($phpBin) . ' ' . escapeshellarg($scriptPath) . ' 2>&1', $lines, $exitCode);
         echo json_encode([
           'success' => $exitCode === 0,
           'output'  => implode("\n", $lines)
