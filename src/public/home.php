@@ -20,8 +20,17 @@ $failedDomains = ($lastErrorsEntry && !empty($lastErrorsEntry->value)) ? (array)
 $logPath = __DIR__ . '/../data/latest.log';
 $recentLog = [];
 if (file_exists($logPath) && is_readable($logPath)) {
-    $lines = file($logPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    $recentLog = array_slice($lines, -20);
+    $file = new SplFileObject($logPath, 'r');
+    $file->seek(PHP_INT_MAX);
+    $totalLines = $file->key();
+    $start = max(0, $totalLines - 20);
+    $file->seek($start);
+    while (!$file->eof()) {
+        $line = trim($file->current());
+        if ($line !== '') $recentLog[] = $line;
+        $file->next();
+    }
+    $file = null;
 }
 ?>
 
