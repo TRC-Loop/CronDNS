@@ -13,7 +13,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "tqdm (>=4.67.1,<5.0.0)",
+    "tqdm (>=4.68.4,<5.0.0)",
     "rich (>=14.3.4,<15.0.0)",
     "pyyaml (>=6.0.3,<7.0.0)",
     "cssutils (>=2.15.0,<3.0.0)",
