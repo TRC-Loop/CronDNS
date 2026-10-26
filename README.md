@@ -1,3 +1,19 @@
+<h1 align="center">⚠️ CronDNS is no longer maintained</h1>
+
+<p align="center"><strong>Please switch to its successor, <a href="https://krondns.net">KronDNS</a> (<a href="https://krondns.net">krondns.net</a>).</strong></p>
+
+> [!CAUTION]
+> **This project is archived. It gets no more updates and no security fixes.**
+>
+> **KronDNS** is the successor to CronDNS and is built for the same job: keep a hostname pointed at a changing address. It is a new project with a new interface, several users with roles, passkeys and two-factor sign-in, an audit log, backups and more providers.
+>
+> - Website: **[krondns.net](https://krondns.net)**
+> - Source and install instructions: **[github.com/TRC-Loop/KronDNS](https://github.com/TRC-Loop/KronDNS)**
+>
+> KronDNS does not read CronDNS's database. Install it next to CronDNS, add your credentials and hosts, check that they update, then turn CronDNS off.
+
+---
+
 <a href="https://github.com/TRC-Loop/CronDNS" align="center" style="text-decoration:none; color:inherit; display:block; outline:none;">
   <img src="https://github.com/TRC-Loop/CronDNS/blob/main/.github/assets/CronDNS.webp"/>
   <div>

@@ -34,6 +34,12 @@ require_once __DIR__."/../conf/config.php";
 </script>
   </head>
   <body>
+    <!-- CronDNS is no longer maintained: this notice is on every page, on purpose. -->
+    <div role="alert" style="background:#b91c1c;color:#fff;padding:20px 24px;text-align:center;font:600 18px/1.45 system-ui,-apple-system,'Segoe UI',sans-serif;border-bottom:4px solid #7f1d1d;">
+      <div style="font-size:22px;font-weight:800;letter-spacing:-.01em;">CronDNS is no longer maintained. Please switch to KronDNS.</div>
+      <div style="margin-top:6px;font-weight:500;">KronDNS is its successor: a new interface, several users with roles, passkeys and two-factor sign-in, an audit log, backups and more providers. CronDNS gets no further updates or security fixes.</div>
+      <a href="https://krondns.net" target="_blank" rel="noopener" style="display:inline-block;margin-top:12px;padding:10px 22px;border-radius:10px;background:#fff;color:#991b1b;text-decoration:none;font-weight:800;">Go to krondns.net</a>
+    </div>
     <main>
       {% block content %}{% endblock %}
       {% if cfg.env == 'dev' %}
